@@ -25,6 +25,7 @@ export default function RequestQuoteDialog({
 }: RequestQuoteDialogProps) {
   const { theme } = useTheme();
   const [quantity, setQuantity] = useState('');
+  const [proposedPrice, setproposedPrice] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,6 +34,11 @@ export default function RequestQuoteDialog({
     setError('');
 
     const quantityNum = parseFloat(quantity);
+    const priceNum = parseFloat(proposedPrice);
+    if (!proposedPrice || isNaN(priceNum) || priceNum <= 0) {
+  setError('Please enter a valid price');
+  return;
+}
     if (!quantity || isNaN(quantityNum) || quantityNum <= 0) {
       setError('Please enter a valid quantity');
       return;
@@ -48,6 +54,7 @@ export default function RequestQuoteDialog({
       await api.post('/quotes/request', {
         productId: product._id,
         quantityRequested: quantityNum,
+buyerProposedPrice: parseFloat(proposedPrice),
         notes: notes.trim() || undefined,
       });
 
@@ -113,7 +120,16 @@ export default function RequestQuoteDialog({
             style={styles.input}
             error={!!error && error.includes('quantity')}
           />
-
+           <TextInput
+  label={`Proposed Price (ETB/${product.unit})`}
+  value={proposedPrice}
+  onChangeText={setproposedPrice}
+  mode="outlined"
+  keyboardType="numeric"
+  placeholder="Enter your proposed price"
+  style={styles.input}
+  error={!!error && error.includes('price')}
+/>
           <TextInput
             label="Notes (Optional)"
             value={notes}

@@ -140,6 +140,14 @@ export default function AccountScreen() {
 
         <List.Section>
           <List.Subheader>Actions</List.Subheader>
+          <List.Item
+  title="Notifications"
+  description="View system alerts & updates"
+  left={(props) => <List.Icon {...props} icon="bell" />}
+  right={(props) => <List.Icon {...props} icon="chevron-right" />}
+  onPress={() => router.push('/notifications')}
+/>
+
           {user?.role === 'manufacturer' && (
             <>
               <List.Item
@@ -151,6 +159,16 @@ export default function AccountScreen() {
               />
             </>
           )}
+          {user?.role === 'supplier' && (
+  <List.Item
+    title="Reviews"
+    description="View customer reviews"
+    left={(props) => <List.Icon {...props} icon="star" />}
+    right={(props) => <List.Icon {...props} icon="chevron-right" />}
+    onPress={() => router.push('/reviews')}
+  />
+)}
+
           {user?.role === 'supplier' && (
             <List.Item
               title="Verification Documents"

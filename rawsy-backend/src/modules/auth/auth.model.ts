@@ -81,6 +81,7 @@ const UserSchema = new Schema(
     reviewCount: { type: Number, default: 0 },
 
     companyName: String,
+    companyDescription: String,
     tinNumber: String,
 
     wishlist: [{ type: Schema.Types.ObjectId, ref: "Product" }],

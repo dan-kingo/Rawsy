@@ -10,6 +10,22 @@ interface User {
   role: 'manufacturer' | 'supplier' | 'admin';
   status: string;
   companyName?: string;
+  tinNumber?: string;
+  companyDescription?: string;
+  businessLocation?: {
+    address?: string;
+    placeName?: string;
+    contactName?: string;
+    contactPhone?: string;
+    coordinates?: { lat?: number; lng?: number };
+  };
+  factoryLocation?: {
+    address?: string;
+    placeName?: string;
+    contactName?: string;
+    contactPhone?: string;
+    coordinates?: { lat?: number; lng?: number };
+  };
   profileImage?: string;
 }
 

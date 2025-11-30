@@ -10,10 +10,33 @@ import { notifyWishlistUsers } from "../../services/notification.service";
 export const createProduct = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { name, description, category, price, unit, stock, negotiable } = req.body;
+
+    const {
+      name,
+      description,
+      category,
+      price,
+      unit,
+      stock,
+      negotiable,
+      paymentMethods // array expected
+    } = req.body;
 
     if (!name || !category || !price || !unit || stock == null) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const allowedMethods = ["bank_transfer", "cash", "mobile_money"];
+
+    // If supplier provided payment methods, validate them
+    let finalPaymentMethods = ["bank_transfer"];
+
+    if (Array.isArray(paymentMethods) && paymentMethods.length > 0) {
+      const invalid = paymentMethods.filter(m => !allowedMethods.includes(m));
+      if (invalid.length > 0) {
+        return res.status(400).json({ error: "Invalid payment method detected" });
+      }
+      finalPaymentMethods = paymentMethods;
     }
 
     const product = await Product.create({
@@ -25,11 +48,23 @@ export const createProduct = async (req: Request, res: Response) => {
       unit,
       stock,
       negotiable: negotiable ?? false,
-      status: "pending" // product waits for admin approval
+      paymentMethods: finalPaymentMethods, // ✅ multiple with default
+      status: "pending"
     });
 
     return res.json({ message: "Product submitted for review", product });
 
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+export const getAllProductsForAdmin = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find()
+      .populate("supplier", "name companyName phone averageRating verifiedSupplier");
+
+    return res.json(products);
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
-import { submitReview, listSupplierReviews, supplierRatingSummary } from "./review.controller";
+import { submitReview, listSupplierReviews, supplierRatingSummary, myReviews } from "./review.controller";
 
 const router = Router();
 
@@ -12,5 +12,5 @@ router.get("/supplier/:supplierId", authenticate, listSupplierReviews);
 
 // summary for supplier (for list UI)
 router.get("/supplier/:supplierId/summary", authenticate, supplierRatingSummary);
-
+router.get("/my", authenticate, myReviews);
 export default router;

@@ -14,6 +14,7 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../services/api';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CATEGORIES = [
   'Agriculture',
@@ -44,7 +45,10 @@ export default function EditProductScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-
+const [discountPercentage, setDiscountPercentage] = useState('');
+const [discountExpiry, setDiscountExpiry] = useState<Date | null>(null);
+const [showDatePicker, setShowDatePicker] = useState(false);
+const [savingDiscount, setSavingDiscount] = useState(false);
   useEffect(() => {
     if (id) {
       fetchProduct();
@@ -71,6 +75,10 @@ export default function EditProductScreen() {
       setUnit(product.unit || 'kg');
       setStock(String(product.stock || ''));
       setNegotiable(product.negotiable || false);
+       if (product.discount?.active) {
+      setDiscountPercentage(String(product.discount.percentage));
+      setDiscountExpiry(product.discount.expiresAt ? new Date(product.discount.expiresAt) : null);
+    }
     } catch (err: any) {
       console.error('Error fetching product:', err);
       const errorMsg = err.response?.data?.error || err.message || 'Failed to load product details';
@@ -80,7 +88,42 @@ export default function EditProductScreen() {
       setLoading(false);
     }
   };
+  // Apply discount
+const handleApplyDiscount = async () => {
+  if (!discountPercentage || isNaN(Number(discountPercentage)) || Number(discountPercentage) < 1 || Number(discountPercentage) > 90) {
+    Alert.alert('Error', 'Discount must be between 1–90%');
+    return;
+  }
 
+  try {
+    setSavingDiscount(true);
+    await api.put('/products/discount/add', {
+      productId: id,
+      percentage: Number(discountPercentage),
+      expiresAt: discountExpiry ? discountExpiry.toISOString() : null
+    });
+    Alert.alert('Success', 'Discount applied successfully');
+  } catch (err: any) {
+    Alert.alert('Error', err.response?.data?.error || 'Failed to apply discount');
+  } finally {
+    setSavingDiscount(false);
+  }
+};
+
+// Remove discount
+const handleRemoveDiscount = async () => {
+  try {
+    setSavingDiscount(true);
+    await api.put(`/products/discount/remove/${id}`);
+    setDiscountPercentage('');
+    setDiscountExpiry(null);
+    Alert.alert('Success', 'Discount removed successfully');
+  } catch (err: any) {
+    Alert.alert('Error', err.response?.data?.error || 'Failed to remove discount');
+  } finally {
+    setSavingDiscount(false);
+  }
+};
   const handleSubmit = async () => {
     setError('');
 
@@ -257,6 +300,50 @@ export default function EditProductScreen() {
               <Switch value={negotiable} onValueChange={setNegotiable} />
             </View>
           </Surface>
+          <Surface style={[styles.section, { backgroundColor: theme.colors.surface }]} elevation={1}>
+  <Text variant="titleMedium" style={styles.sectionTitle}>
+    Discount
+  </Text>
+
+  <TextInput
+    label="Discount Percentage (%)"
+    value={discountPercentage}
+    onChangeText={setDiscountPercentage}
+    mode="outlined"
+    keyboardType="numeric"
+    style={styles.input}
+    placeholder="e.g. 10"
+  />
+
+  <View style={{ marginBottom: 16 }}>
+    <Button
+      mode="outlined"
+      onPress={() => setShowDatePicker(true)}
+    >
+      {discountExpiry ? `Expires: ${discountExpiry.toDateString()}` : 'Set Expiry Date (Optional)'}
+    </Button>
+    {showDatePicker && (
+      <DateTimePicker
+        value={discountExpiry || new Date()}
+        mode="date"
+        display="default"
+        onChange={(event, date) => {
+          setShowDatePicker(false);
+          if (date) setDiscountExpiry(date);
+        }}
+      />
+    )}
+  </View>
+
+  <View style={{ flexDirection: 'row', gap: 12 }}>
+    <Button mode="contained" onPress={handleApplyDiscount} loading={savingDiscount} style={{ flex: 1 }}>
+      Apply / Update Discount
+    </Button>
+    <Button mode="outlined" onPress={handleRemoveDiscount} disabled={!discountPercentage} style={{ flex: 1 }}>
+      Remove Discount
+    </Button>
+  </View>
+</Surface>
 
           {error && (
             <HelperText type="error" visible={!!error} style={styles.error}>

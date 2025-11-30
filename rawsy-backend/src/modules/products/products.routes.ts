@@ -8,13 +8,14 @@ import { createProduct,
   deleteProduct,
   getProductById,
   getTopRatedProducts,
-  searchProducts } from "./product.controller";
+  searchProducts,
+  getAllProductsForAdmin } from "./product.controller";
 import { uploadProductImage } from "./product.upload.controller";
 import { uploadSingle } from "../../middlewares/upload.middleware";
 import { deleteProductImage } from "./product.image.controller";
 import { addProductReview, getProductReviews } from "./productReview.controller";
 import { applyDiscount, removeDiscount } from "./product.discount.controller";
-
+import { requireAdmin } from "../../middlewares/admin.middleware";
 const router = Router();
 
 // Supplier products list

@@ -16,6 +16,8 @@ import reviewRoutes from "./modules/reviews/review.routes";
 import quoteRoutes from "./modules/quotes/quote.routes";
 import supportRoutes from "./modules/support/support.routes";
 import homeRoutes from "./modules/home/home.routes";
+import invoicesRoutes from "./modules/invoices/invoices.routes";
+import path from "path";
 
 const app = express();
 
@@ -35,6 +37,10 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/quotes", quoteRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/home", homeRoutes);
+// Serve invoice files (static) - point to rawsy-backend/invoices from src
+app.use("/invoices/files", express.static(path.resolve(__dirname, '../invoices')));
+// API for invoice listing
+app.use("/api/invoices", invoicesRoutes);
 // Connect to MongoDB
 connectDB();
 

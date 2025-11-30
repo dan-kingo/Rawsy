@@ -3,6 +3,7 @@ import User from "../auth/auth.model";
 import Product from "../products/product.model";
 import Order from "../orders/order.model";
 import QuoteRequest from "../quotes/quote.model";
+import mongoose from "mongoose";
 
 export const getManufacturerHome = async (req: Request, res: Response) => {
   try {
@@ -82,16 +83,16 @@ export const getManufacturerHome = async (req: Request, res: Response) => {
 export const getSupplierDashboard = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
-
+const objectUserId = new mongoose.Types.ObjectId(userId);
     const totalProducts = await Product.countDocuments({
       supplier: userId
     });
 
     const productStats = await Product.aggregate([
-      { $match: { supplier: userId } },
+      { $match: { supplier: objectUserId} },
       {
         $group: {
-          _id: "$status",
+          _id: { $toLower: "$status" },
           count: { $sum: 1 }
         }
       }
@@ -111,10 +112,10 @@ export const getSupplierDashboard = async (req: Request, res: Response) => {
     const totalOrders = await Order.countDocuments({ supplier: userId });
 
     const ordersByStatus = await Order.aggregate([
-      { $match: { supplier: userId } },
+      { $match: { supplier: objectUserId } },
       {
         $group: {
-          _id: "$status",
+          _id: { $toLower: "$status" },
           count: { $sum: 1 }
         }
       }

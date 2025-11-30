@@ -51,27 +51,79 @@ export default function CartScreen() {
   };
 
   const handleCheckout = async () => {
+    if (cart.length === 0) {
+      Alert.alert('Error', 'Your cart is empty');
+      return;
+    }
+
+    const firstProduct = cart[0]?.product;
+    if (!firstProduct) {
+      Alert.alert('Error', 'Invalid cart data');
+      return;
+    }
+
+    const deliveryRequired = cart.some((item) => {
+      const prod = item.product;
+      return prod?.deliveryAvailable && prod?.deliveryAllowed !== false;
+    });
+
+    if (deliveryRequired && !user?.factoryLocation?.address) {
+      Alert.alert(
+        'Delivery Address Required',
+        'Please set your factory location in your profile before placing an order.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Go to Profile', onPress: () => {} }
+        ]
+      );
+      return;
+    }
+
+    const availablePaymentMethods = firstProduct.paymentMethod &&
+                                    Array.isArray(firstProduct.paymentMethod) &&
+                                    firstProduct.paymentMethod.length > 0
+      ? firstProduct.paymentMethod
+      : ['bank_transfer'];
+
+    const paymentMethod = availablePaymentMethods[0];
+
     try {
       setCheckingOut(true);
-      const response = await api.post('/cart/checkout', {
-        paymentMethod: 'bank_transfer',
-      });
+      const checkoutPayload: any = {
+        paymentMethod: paymentMethod,
+      };
+
+      if (deliveryRequired && user?.factoryLocation) {
+        checkoutPayload.delivery = {
+          address: user.factoryLocation.address,
+          contactName: user.factoryLocation.contactName,
+          contactPhone: user.factoryLocation.contactPhone,
+        };
+      }
+
+      const response = await api.post('/cart/checkout', checkoutPayload);
       Alert.alert('Success', 'Order placed successfully!');
       await fetchCart();
     } catch (error: any) {
       console.error('Checkout error:', error);
-      Alert.alert('Error', error.response?.data?.error || 'Checkout failed');
+      const errorMessage = error.response?.data?.error || 'Checkout failed';
+      Alert.alert('Checkout Error', errorMessage);
     } finally {
       setCheckingOut(false);
     }
   };
 
   const calculateTotal = () => {
-    return cart.reduce((sum, item) => {
-      const price = item.product?.price || 0;
-      return sum + price * item.quantity;
-    }, 0);
-  };
+  return cart.reduce((sum, item) => {
+    const product = item.product;
+    const price = product?.discount?.active
+      ? product.finalPrice
+      : product?.price || 0;
+
+    return sum + price * item.quantity;
+  }, 0);
+};
+
 
   if (loading) {
     return (
@@ -116,7 +168,9 @@ export default function CartScreen() {
                         {item.product?.category}
                       </Text>
                       <Text variant="titleMedium" style={styles.itemPrice}>
-                        {item.product?.price} ETB/{item.product?.unit}
+{(item.product?.discount?.active
+  ? item.product.finalPrice
+  : item.product?.price)} ETB/{item.product?.unit}
                       </Text>
                     </View>
 
@@ -141,7 +195,11 @@ export default function CartScreen() {
 
                   <View style={styles.itemFooter}>
                     <Text variant="titleMedium" style={styles.subtotal}>
-                      Subtotal: {(item.product?.price || 0) * item.quantity} ETB
+Subtotal: {(
+  (item.product?.discount?.active
+    ? item.product.finalPrice
+    : item.product?.price || 0) * item.quantity
+).toFixed(2)} ETB
                     </Text>
                     <IconButton
                       icon="delete"

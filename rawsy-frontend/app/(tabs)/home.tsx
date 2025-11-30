@@ -1,5 +1,5 @@
-import { View, StyleSheet, ScrollView, RefreshControl, Dimensions, TouchableOpacity } from "react-native";
-import { Text, Appbar, Card, Button, Surface, Chip, ActivityIndicator, Avatar } from "react-native-paper";
+import { View, StyleSheet, ScrollView, RefreshControl, Dimensions, TouchableOpacity, Linking } from "react-native";
+import { Text, Appbar, Card, Button, Surface, Chip, ActivityIndicator, Avatar, Badge } from "react-native-paper";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useLanguage } from "../../context/LanguageContext";
@@ -72,6 +72,8 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
   const { theme } = useTheme();
   const { t } = useLanguage();
   const router = useRouter();
+
+  const [expandedSupplierId, setExpandedSupplierId] = useState<string | null>(null);
 
   const quickActions = [
     { icon: "inventory", label: t('products'), screen: "/products" },
@@ -179,7 +181,7 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
               Recommended Suppliers
             </Text>
             {homeData.recommendedSuppliers.map((supplier: any, index: number) => (
-              <Card key={index} style={[styles.supplierCard, { backgroundColor: theme.colors.surface }]}>
+              <Card key={index} style={[styles.supplierCard, { backgroundColor: theme.colors.surface }]}> 
                 <Card.Content>
                   <View style={styles.supplierRow}>
                     <Avatar.Text
@@ -192,8 +194,8 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
                         <Text variant="titleMedium" style={styles.supplierName}>
                           {supplier.name}
                         </Text>
-                        {supplier.verifiedSupplier && (
-                          <MaterialIcons name="verified" size={16} color="#10b981" />
+                        {(supplier.verifiedSupplier || supplier.verified || supplier.isVerified) && (
+                          <Badge style={styles.cardVerifiedBadge}>Verified</Badge>
                         )}
                       </View>
                       {supplier.companyName && (
@@ -210,6 +212,54 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
                     </View>
                   </View>
                 </Card.Content>
+
+                <Card.Actions>
+                  <Button
+                      mode="outlined"
+                      compact
+                      onPress={() => router.push({ pathname: '/supplier/[id]', params: { id: supplier._id } })}
+                      style={styles.viewButton}
+                    >
+                      View
+                    </Button>
+                </Card.Actions>
+
+                {expandedSupplierId === supplier._id && (
+                  <Card.Content>
+                    <View style={styles.supplierDetails}>
+                      {supplier.companyName ? (
+                        <View style={styles.detailRow}>
+                          <MaterialIcons name="business" size={16} color={theme.colors.onSurfaceVariant} />
+                          <Text variant="bodySmall" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>Company:</Text>
+                          <Text variant="bodySmall" style={[styles.detailValue, { color: theme.colors.onSurface }]}>{supplier.companyName}</Text>
+                        </View>
+                      ) : null}
+
+                      {supplier.location ? (
+                        <View style={styles.detailRow}>
+                          <MaterialIcons name="location-on" size={16} color={theme.colors.onSurfaceVariant} />
+                          <Text variant="bodySmall" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>Location:</Text>
+                          <Text variant="bodySmall" style={[styles.detailValue, { color: theme.colors.onSurface }]}>{supplier.location}</Text>
+                        </View>
+                      ) : null}
+
+                      {supplier.contact ? (
+                        <TouchableOpacity onPress={() => Linking.openURL(`tel:${supplier.contact}`)} style={styles.detailRow}>
+                          <MaterialIcons name="phone" size={16} color={theme.colors.primary} />
+                          <Text variant="bodySmall" style={[styles.detailLabel, { color: theme.colors.onSurface }]}>Contact:</Text>
+                          <Text variant="bodySmall" style={[styles.detailValue, { color: theme.colors.primary }]}>{supplier.contact}</Text>
+                        </TouchableOpacity>
+                      ) : null}
+
+                      {supplier.verifiedSupplier ? (
+                        <View style={[styles.detailRow, { marginTop: 6 }]}> 
+                          <MaterialIcons name="verified" size={16} color="#10b981" />
+                          <Text variant="bodySmall" style={[styles.detailValue, { color: '#10b981', marginLeft: 6 }]}>Verified Supplier</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </Card.Content>
+                )}
               </Card>
             ))}
           </View>
@@ -569,6 +619,7 @@ const styles = StyleSheet.create({
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   ratingText: { fontSize: 12, color: '#6b7280' },
   supplierCard: { marginBottom: 12 },
+  cardVerifiedBadge: { marginLeft: 8, backgroundColor: '#10b981', color: '#fff', height: 20, alignSelf: 'center' },
   supplierRow: { flexDirection: 'row', gap: 12 },
   supplierInfo: { flex: 1 },
   supplierNameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -599,4 +650,12 @@ const styles = StyleSheet.create({
   lowStockItem: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
   quoteCard: { marginBottom: 12 },
   quoteRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  viewButton: { marginLeft: 'auto' },
+  supplierDetails: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  supplierDetailText: { marginTop: 4 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  detailLabel: { marginLeft: 6, color: '#6b7280' },
+  detailValue: { marginLeft: 8 },
+  verifiedBadge: { backgroundColor: '#10b981', color: '#fff', marginLeft: 8 },
+  supplierHeaderRow: { flexDirection: 'row', alignItems: 'center' },
 });

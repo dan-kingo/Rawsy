@@ -195,7 +195,7 @@ export default function QuotesScreen() {
                         Quantity
                       </Text>
                       <Text variant="titleMedium">
-                        {quote.quantityRequested} {quote.productSnapshot?.unit}
+                        {quote?.counterMinimumQty ||quote.quantityRequested } {quote.productSnapshot?.unit}
                       </Text>
                     </View>
 

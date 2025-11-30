@@ -37,7 +37,11 @@ export const placeOrder = async (req: Request, res: Response) => {
     const supplierId = product.supplier.toString();
     const unitPrice = product.price;
     const subtotal = unitPrice * quantity;
-
+    const availableMethods = product.paymentMethod || ["bank_transfer"];
+const finalPaymentMethod =
+  paymentMethod && availableMethods.includes(paymentMethod)
+    ? paymentMethod
+    : availableMethods[0];
     const items = [
       {
         product: product._id,
@@ -54,7 +58,7 @@ export const placeOrder = async (req: Request, res: Response) => {
       supplier: supplierId,
       items,
       total: subtotal,
-      paymentMethod: paymentMethod || "bank_transfer",
+      paymentMethod: finalPaymentMethod,
       delivery,
       status: "placed",
       stockReserved: true,
@@ -554,6 +558,62 @@ export const downloadSupplierInvoice = async (req: Request, res: Response) => {
 
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Return a JSON URL that the frontend can open (authenticated) for buyer invoice
+export const getBuyerInvoiceUrl = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+
+    const order = await Order.findById(id)
+      .populate("buyer", "name email phone")
+      .populate("supplier", "name email phone")
+      .populate("items.product", "name");
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (user.role !== "admin" && order.buyer._id.toString() !== user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const filePath = await generateInvoicePDF(order, "buyer");
+    const filename = filePath.split('/').pop() || filePath;
+    const base = `${req.protocol}://${req.get('host')}`;
+    const url = `${base}/invoices/files/${encodeURIComponent(filename)}`;
+
+    return res.json({ filename, url });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// Return a JSON URL for supplier invoice
+export const getSupplierInvoiceUrl = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = (req as any).user;
+
+    const order = await Order.findById(id)
+      .populate("buyer", "name email phone")
+      .populate("supplier", "name email phone")
+      .populate("items.product", "name");
+
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (user.role !== "admin" && order.supplier._id.toString() !== user.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const filePath = await generateInvoicePDF(order, "supplier");
+    const filename = filePath.split('/').pop() || filePath;
+    const base = `${req.protocol}://${req.get('host')}`;
+    const url = `${base}/invoices/files/${encodeURIComponent(filename)}`;
+
+    return res.json({ filename, url });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
   }
 };
 export const getOrderTimeline = async (req: Request, res: Response) => {

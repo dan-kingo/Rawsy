@@ -81,7 +81,7 @@ export const getPublicUserProfile = async (req: Request, res: Response) => {
     const userId = req.params.id;
 
     const user: any = await User.findById(userId)
-      .select("name phone companyName profileImage role averageRating reviewCount factoryLocation businessLocation")
+      .select("name phone companyName profileImage role averageRating reviewCount factoryLocation businessLocation companyDescription")
       .lean();
 
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -94,6 +94,9 @@ export const getPublicUserProfile = async (req: Request, res: Response) => {
         .limit(4)
         .lean();
     }
+
+    // Present a friendly `description` property for the frontend (backwards compatible)
+    if (user) user.description = user.companyDescription || '';
 
     return res.json({
       user,

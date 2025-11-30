@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import {
   Text,
   Appbar,
@@ -8,6 +8,7 @@ import {
   Button,
   Divider,
   Surface,
+  Snackbar,
 } from 'react-native-paper';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -27,7 +28,13 @@ export default function OrdersScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [actioningOrderId, setActioningOrderId] = useState<string | null>(null);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarError, setSnackbarError] = useState(false);
 
+  // calling fetchOrders once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -54,6 +61,38 @@ export default function OrdersScreen() {
   const handleUploadPayment = (orderId: string) => {
     setSelectedOrderId(orderId);
     setShowPaymentDialog(true);
+  };
+
+  const handleCancelOrder = (orderId: string) => {
+    Alert.alert(
+      'Cancel Order',
+      'Are you sure you want to cancel this order? This action cannot be undone.',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setActioningOrderId(orderId);
+              await api.put(`/orders/${orderId}/cancel`);
+              setSnackbarMessage('Order cancelled successfully');
+              setSnackbarError(false);
+              setSnackbarVisible(true);
+              // refresh orders after cancellation
+              await fetchOrders();
+            } catch (err: any) {
+              const msg = err.response?.data?.error || 'Failed to cancel order';
+              setSnackbarMessage(msg);
+              setSnackbarError(true);
+              setSnackbarVisible(true);
+            } finally {
+              setActioningOrderId(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const getStatusColor = (status: string) => {
@@ -226,18 +265,69 @@ export default function OrdersScreen() {
                     </Text>
                   </View>
 
-                  {user?.role === 'manufacturer' &&
-                    order.paymentMethod === 'bank_transfer' &&
-                    order.paymentStatus === 'pending' && (
-                      <Button
-                        mode="contained"
-                        onPress={() => handleUploadPayment(order._id)}
-                        style={styles.uploadButton}
-                        icon="upload"
-                      >
-                        Upload Payment Proof
-                      </Button>
-                    )}
+                  {/* Action buttons: upload payment proof and cancel order. Render side-by-side when both available */}
+                  {(() => {
+                    const showUpload = user?.role === 'manufacturer' && order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'pending';
+                    const showCancel = user?.role === 'manufacturer' && String(order.status || '').trim().toLowerCase() === 'placed';
+
+                    if (showUpload && showCancel) {
+                      return (
+                        <View style={styles.actionRow}>
+                          <Button
+                            mode="contained"
+                            onPress={() => handleUploadPayment(order._id)}
+                            style={[styles.actionBtnHalf, { marginRight: 8 }]}
+                            icon="upload"
+                          >
+                            Upload Proof
+                          </Button>
+
+                          <Button
+                            mode="contained"
+                            onPress={() => handleCancelOrder(order._id)}
+                            style={[styles.actionBtnHalf, { backgroundColor: '#ef4444' }]}
+                            icon="cancel"
+                            loading={actioningOrderId === order._id}
+                            disabled={actioningOrderId === order._id}
+                            textColor="#fff"
+                          >
+                            Cancel
+                          </Button>
+                        </View>
+                      );
+                    }
+
+                    if (showUpload) {
+                      return (
+                        <Button
+                          mode="contained"
+                          onPress={() => handleUploadPayment(order._id)}
+                          style={styles.uploadButton}
+                          icon="upload"
+                        >
+                          Upload Payment Proof
+                        </Button>
+                      );
+                    }
+
+                    if (showCancel) {
+                      return (
+                        <Button
+                          mode="contained"
+                          onPress={() => handleCancelOrder(order._id)}
+                          style={[styles.actionButton, { backgroundColor: '#ef4444' }]}
+                          icon="cancel"
+                          loading={actioningOrderId === order._id}
+                          disabled={actioningOrderId === order._id}
+                          textColor="#fff"
+                        >
+                          Cancel Order
+                        </Button>
+                      );
+                    }
+
+                    return null;
+                  })()}
 
                   {order.paymentProof && (
                     <View style={[styles.proofSection, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -269,6 +359,15 @@ export default function OrdersScreen() {
           }}
         />
       )}
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        style={{ backgroundColor: snackbarError ? '#b91c1c' : undefined }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 }
@@ -357,6 +456,18 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     marginTop: 8,
+  },
+  actionButton: {
+    marginTop: 8,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  actionBtnHalf: {
+    flex: 1,
+    paddingVertical: 6,
   },
   proofSection: {
     flexDirection: 'row',

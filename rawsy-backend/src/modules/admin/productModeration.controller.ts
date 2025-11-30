@@ -54,3 +54,22 @@ export const reviewProduct = async (req: Request, res: Response) => {
     return res.status(500).json({ error: err.message });
   }
 };
+// Toggle flag
+export const toggleFlagProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
+    // Simple toggle
+    product.flagged = !product.flagged;
+    await product.save();
+
+    res.json({
+      message: `Product ${product.flagged ? "flagged" : "unflagged"} successfully`,
+      product
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};

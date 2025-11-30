@@ -31,7 +31,7 @@ export default function OrderFromQuoteDialog({
   const [showPaymentUpload, setShowPaymentUpload] = useState(false);
 
   const finalPrice = quote?.counterPrice || quote?.productSnapshot?.price || 0;
-  const total = finalPrice * (quote?.quantityRequested || 0);
+  const total = finalPrice * (quote?.counterMinimumQty || quote?.quantityRequested || 0);
 
   const handlePlaceOrder = async () => {
     try {
@@ -105,7 +105,7 @@ export default function OrderFromQuoteDialog({
               <View style={styles.summaryRow}>
                 <Text variant="bodyMedium" style={styles.label}>Quantity:</Text>
                 <Text variant="bodyMedium" style={styles.value}>
-                  {quote?.quantityRequested} {quote?.productSnapshot?.unit}
+                  { quote?.counterMinimumQty || quote?.quantityRequested} {quote?.productSnapshot?.unit}
                 </Text>
               </View>
 

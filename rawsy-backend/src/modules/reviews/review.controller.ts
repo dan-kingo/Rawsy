@@ -103,3 +103,15 @@ export const supplierRatingSummary = async (req: Request, res: Response) => {
     return res.status(500).json({ error: err.message });
   }
 };
+/**
+ * Get reviews submitted by the logged-in manufacturer
+ */
+export const myReviews = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user; // logged-in manufacturer
+    const reviews = await Review.find({ manufacturer: user.id }).select("order"); // only need order ids
+    res.json(reviews);
+  } catch (err: any) {
+    res.status(500).json({ error: "Could not fetch user reviews" });
+  }
+};

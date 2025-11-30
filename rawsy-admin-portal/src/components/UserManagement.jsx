@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './UserManagement.css';
+import UserDetailsModal from './UserDetailsModal.jsx';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -7,6 +8,19 @@ function UserManagement() {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const openUserModal = (user) => {
+    setSelectedUser(user);
+    setShowUserModal(true);
+  };
+
+  const closeUserModal = () => {
+    setSelectedUser(null);
+    setShowUserModal(false);
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -183,6 +197,32 @@ function UserManagement() {
     }
   };
 
+  const handleVerifySupplier = async (userId) => {
+    try {
+      setActionLoading(userId);
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`http://localhost:4000/api/admin/supplier/verify/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to verify supplier');
+      }
+
+      await fetchUsers();
+      alert('Supplier verified successfully');
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const filteredUsers = users.filter(user => {
     if (filter === 'all') return true;
     if (filter === 'supplier') return user.role === 'supplier';
@@ -190,7 +230,11 @@ function UserManagement() {
     if (filter === 'pending') return user.status === 'pending';
     if (filter === 'suspended') return user.status === 'suspended';
     return true;
-  });
+  }).filter(user => 
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -206,79 +250,148 @@ function UserManagement() {
   return (
     <div className="user-management">
       <div className="management-header">
-        <h2>User Management</h2>
-        <button onClick={fetchUsers} className="refresh-button">
-          Refresh
-        </button>
+        <div className="header-content">
+          <h1>User Management</h1>
+          <p>Manage and monitor all user accounts in the system</p>
+        </div>
+        <div className="header-actions">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+          <button onClick={fetchUsers} className="refresh-button">
+            <span className="refresh-icon">🔄</span>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className="error-banner">
+          <span className="error-icon">⚠️</span>
           {error}
         </div>
       )}
 
+      <div className="dashboard-cards">
+        <div className="stat-card">
+          <div className="stat-icon total">👥</div>
+          <div className="stat-info">
+            <h3>{users.length}</h3>
+            <p>Total Users</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon supplier">🏭</div>
+          <div className="stat-info">
+            <h3>{users.filter(u => u.role === 'supplier').length}</h3>
+            <p>Suppliers</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon manufacturer">🏢</div>
+          <div className="stat-info">
+            <h3>{users.filter(u => u.role === 'manufacturer').length}</h3>
+            <p>Manufacturers</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon pending">⏳</div>
+          <div className="stat-info">
+            <h3>{users.filter(u => u.status === 'pending').length}</h3>
+            <p>Pending</p>
+          </div>
+        </div>
+      </div>
+
       <div className="filter-section">
-        <button
-          className={filter === 'all' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => setFilter('all')}
-        >
-          All Users ({users.length})
-        </button>
-        <button
-          className={filter === 'supplier' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => setFilter('supplier')}
-        >
-          Suppliers ({users.filter(u => u.role === 'supplier').length})
-        </button>
-        <button
-          className={filter === 'manufacturer' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => setFilter('manufacturer')}
-        >
-          Manufacturers ({users.filter(u => u.role === 'manufacturer').length})
-        </button>
-        <button
-          className={filter === 'pending' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => setFilter('pending')}
-        >
-          Pending ({users.filter(u => u.status === 'pending').length})
-        </button>
-        <button
-          className={filter === 'suspended' ? 'filter-btn active' : 'filter-btn'}
-          onClick={() => setFilter('suspended')}
-        >
-          Suspended ({users.filter(u => u.status === 'suspended').length})
-        </button>
+        <div className="filter-tabs">
+          <button
+            className={filter === 'all' ? 'filter-tab active' : 'filter-tab'}
+            onClick={() => setFilter('all')}
+          >
+            All Users
+            <span className="tab-count">{users.length}</span>
+          </button>
+          <button
+            className={filter === 'supplier' ? 'filter-tab active' : 'filter-tab'}
+            onClick={() => setFilter('supplier')}
+          >
+            Suppliers
+            <span className="tab-count">{users.filter(u => u.role === 'supplier').length}</span>
+          </button>
+          <button
+            className={filter === 'manufacturer' ? 'filter-tab active' : 'filter-tab'}
+            onClick={() => setFilter('manufacturer')}
+          >
+            Manufacturers
+            <span className="tab-count">{users.filter(u => u.role === 'manufacturer').length}</span>
+          </button>
+          <button
+            className={filter === 'pending' ? 'filter-tab active' : 'filter-tab'}
+            onClick={() => setFilter('pending')}
+          >
+            Pending Approval
+            <span className="tab-count">{users.filter(u => u.status === 'pending').length}</span>
+          </button>
+          <button
+            className={filter === 'suspended' ? 'filter-tab active' : 'filter-tab'}
+            onClick={() => setFilter('suspended')}
+          >
+            Suspended
+            <span className="tab-count">{users.filter(u => u.status === 'suspended').length}</span>
+          </button>
+        </div>
       </div>
 
       <div className="table-container">
+        <div className="table-header">
+          <h3>User Accounts</h3>
+          <span className="results-count">{filteredUsers.length} users found</span>
+        </div>
         <table className="users-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
+              <th>User</th>
               <th>Role</th>
               <th>Status</th>
-              <th>Company</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan="7" className="no-data">
-                  No users found
+                <td colSpan="4" className="no-data">
+                  <div className="no-data-content">
+                    <span className="no-data-icon">👥</span>
+                    <h4>No users found</h4>
+                    <p>Try adjusting your search or filter criteria</p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredUsers.map((user) => (
                 <tr key={user._id}>
-                  <td>{user.name || 'N/A'}</td>
-                  <td>{user.email || 'N/A'}</td>
-                  <td>{user.phone || 'N/A'}</td>
                   <td>
-                    <span className="role-badge">
+                    <div className="user-info">
+                      <div className="user-avatar">
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div className="user-details">
+                        <span className="user-name">{user.name || 'N/A'}</span>
+                        <span className="user-email">{user.email || 'N/A'}</span>
+                        <span className="user-company">{user.companyName || 'No company'}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`role-badge role-${user.role}`}>
                       {user.role}
                     </span>
                   </td>
@@ -287,9 +400,17 @@ function UserManagement() {
                       {user.status}
                     </span>
                   </td>
-                  <td>{user.companyName || 'N/A'}</td>
                   <td>
                     <div className="action-buttons">
+                      <button
+                        onClick={() => openUserModal(user)}
+                        className="btn-view"
+                        title="View user details"
+                      >
+                        <span className="btn-icon">👁</span>
+                        Details
+                      </button>
+
                       {user.role === 'supplier' && user.status === 'pending' && (
                         <>
                           <button
@@ -299,9 +420,12 @@ function UserManagement() {
                             title="Approve supplier account"
                           >
                             {actionLoading === user._id ? (
-                              <span className="loading-spinner">⏳</span>
+                              <span className="loading-spinner"></span>
                             ) : (
-                              <>✓ Approve</>
+                              <>
+                                <span className="btn-icon">✓</span>
+                                Approve
+                              </>
                             )}
                           </button>
                           <button
@@ -311,9 +435,12 @@ function UserManagement() {
                             title="Reject supplier application"
                           >
                             {actionLoading === user._id ? (
-                              <span className="loading-spinner">⏳</span>
+                              <span className="loading-spinner"></span>
                             ) : (
-                              <>✕ Reject</>
+                              <>
+                                <span className="btn-icon">✕</span>
+                                Reject
+                              </>
                             )}
                           </button>
                         </>
@@ -329,7 +456,7 @@ function UserManagement() {
                               title="Reactivate manufacturer account"
                             >
                               {actionLoading === user._id ? (
-                                <span className="loading-spinner">⏳</span>
+                                <span className="loading-spinner"></span>
                               ) : (
                                 <>↻ Unsuspend</>
                               )}
@@ -342,7 +469,7 @@ function UserManagement() {
                               title="Temporarily suspend manufacturer access"
                             >
                               {actionLoading === user._id ? (
-                                <span className="loading-spinner">⏳</span>
+                                <span className="loading-spinner"></span>
                               ) : (
                                 <>⏸ Suspend</>
                               )}
@@ -355,7 +482,7 @@ function UserManagement() {
                             title="Permanently deactivate manufacturer account"
                           >
                             {actionLoading === user._id ? (
-                              <span className="loading-spinner">⏳</span>
+                              <span className="loading-spinner"></span>
                             ) : (
                               <>🗑 Deactivate</>
                             )}
@@ -373,7 +500,7 @@ function UserManagement() {
                               title="Reactivate supplier account"
                             >
                               {actionLoading === user._id ? (
-                                <span className="loading-spinner">⏳</span>
+                                <span className="loading-spinner"></span>
                               ) : (
                                 <>↻ Unsuspend</>
                               )}
@@ -386,7 +513,7 @@ function UserManagement() {
                               title="Temporarily suspend supplier access"
                             >
                               {actionLoading === user._id ? (
-                                <span className="loading-spinner">⏳</span>
+                                <span className="loading-spinner"></span>
                               ) : (
                                 <>⏸ Suspend</>
                               )}
@@ -399,11 +526,42 @@ function UserManagement() {
                             title="Permanently deactivate supplier account"
                           >
                             {actionLoading === user._id ? (
-                              <span className="loading-spinner">⏳</span>
+                              <span className="loading-spinner"></span>
                             ) : (
                               <>🗑 Deactivate</>
                             )}
                           </button>
+                          {user.role === 'supplier' && user.status === 'approved' && (
+                            <>
+                              {user.verifiedSupplier ? (
+                                <span className="verified-badge">✔ Verified</span>
+                              ) : user.verificationDocs && user.verificationDocs.length > 0 ? (
+                                <>
+                                  <button
+                                    onClick={() => window.open(user.verificationDocs[user.verificationDocs.length - 1].url, '_blank')}
+                                    className="btn-view-doc"
+                                    title="View latest verification document"
+                                  >
+                                    📄 View Doc
+                                  </button>
+                                  <button
+                                    onClick={() => handleVerifySupplier(user._id)}
+                                    disabled={actionLoading === user._id}
+                                    className="btn-verify"
+                                    title="Verify supplier account"
+                                  >
+                                    {actionLoading === user._id ? (
+                                      <span className="loading-spinner"></span>
+                                    ) : (
+                                      <>✔ Verify</>
+                                    )}
+                                  </button>
+                                </>
+                              ) : (
+                                <span className="no-docs-label">No document uploaded</span>
+                              )}
+                            </>
+                          )}
                         </>
                       )}
 
@@ -418,6 +576,13 @@ function UserManagement() {
           </tbody>
         </table>
       </div>
+
+      {showUserModal && selectedUser && (
+        <UserDetailsModal
+          user={selectedUser}
+          onClose={closeUserModal}
+        />
+      )}
     </div>
   );
 }

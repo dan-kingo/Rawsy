@@ -10,12 +10,17 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
 } from "recharts";
 
 function PlatformAnalytics() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
+  const [timeRange, setTimeRange] = useState("6months");
 
   useEffect(() => {
     fetchAnalytics();
@@ -72,7 +77,7 @@ function PlatformAnalytics() {
       <div className="analytics-page">
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>Loading analytics...</p>
+          <p>Loading analytics dashboard...</p>
         </div>
       </div>
     );
@@ -81,127 +86,286 @@ function PlatformAnalytics() {
   return (
     <div className="analytics-page">
       <div className="analytics-header">
-        <h2>Platform Analytics</h2>
-        <button onClick={fetchAnalytics} className="refresh-button">
-          Refresh
-        </button>
+        <div className="header-content">
+          <h1>Platform Analytics</h1>
+          <p>Monitor platform performance and key metrics</p>
+        </div>
+        <div className="header-actions">
+          <select 
+            value={timeRange} 
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="time-filter"
+          >
+            <option value="1month">Last Month</option>
+            <option value="3months">Last 3 Months</option>
+            <option value="6months">Last 6 Months</option>
+            <option value="1year">Last Year</option>
+          </select>
+          <button onClick={fetchAnalytics} className="refresh-button">
+            <span className="refresh-icon">🔄</span>
+            Refresh Data
+          </button>
+        </div>
       </div>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && (
+        <div className="error-banner">
+          <span className="error-icon">⚠️</span>
+          {error}
+        </div>
+      )}
 
       {!stats ? (
-        <p className="no-data">No analytics data found</p>
+        <div className="no-data">
+          <div className="no-data-content">
+            <span className="no-data-icon">📊</span>
+            <h3>No Analytics Data</h3>
+            <p>Unable to load analytics data at this time</p>
+            <button onClick={fetchAnalytics} className="retry-button">
+              Try Again
+            </button>
+          </div>
+        </div>
       ) : (
         <>
           {/* Stats Summary */}
           <div className="analytics-stats-grid">
             <div className="analytics-card">
-              <h4>Total Manufacturers</h4>
-              <p>{stats.totalManufacturers || 0}</p>
-            </div>
-
-            <div className="analytics-card">
-              <h4>Active Suppliers</h4>
-              <p>{stats.activeSuppliers || 0}</p>
-            </div>
-
-            <div className="analytics-card">
-              <h4>Pending Suppliers</h4>
-              <p>{stats.pendingSuppliers || 0}</p>
-            </div>
-
-            <div className="analytics-card">
-              <h4>Total Orders</h4>
-              <p>{stats.totalOrders || 0}</p>
-            </div>
-
-            <div className="analytics-card">
-              <h4>Revenue (ETB)</h4>
-              <p>{stats.revenue ? stats.revenue.toLocaleString() : 0}</p>
-            </div>
-          </div>
-
-          {/* Revenue Trend Chart */}
-          <div className="chart-section">
-            <h3>Revenue Trend (Last 6 Months)</h3>
-            <div className="chart-box">
-              {stats.revenueChart && stats.revenueChart.labels && (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={stats.revenueChart.labels.map((label, idx) => ({
-                      month: label,
-                      revenue: stats.revenueChart.values[idx],
-                    }))}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Orders Trend Chart */}
-          <div className="chart-section">
-            <h3>Orders Trend (Last 6 Months)</h3>
-            <div className="chart-box">
-              {stats.ordersChart && stats.ordersChart.labels && (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    data={stats.ordersChart.labels.map((label, idx) => ({
-                      month: label,
-                      orders: stats.ordersChart.values[idx],
-                    }))}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="orders" fill="#2563eb" />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </div>
-
-          {/* Top Suppliers */}
-          {stats.topSuppliers && stats.topSuppliers.length > 0 && (
-            <div className="chart-section">
-              <h3>Top Suppliers (Last 6 Months)</h3>
-              <div className="chart-box">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.topSuppliers}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="supplierName" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="orderCount" fill="#8b5cf6" name="Orders" />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="card-icon total">🏭</div>
+              <div className="card-content">
+                <h4>Total Manufacturers</h4>
+                <p>{stats.totalManufacturers || 0}</p>
+                <span className="card-trend positive">+12% this month</span>
               </div>
             </div>
-          )}
 
-          {/* Top Products */}
-          {stats.topProducts && stats.topProducts.length > 0 && (
-            <div className="chart-section">
-              <h3>Top Products by Quantity (Last 6 Months)</h3>
-              <div className="chart-box">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={stats.topProducts}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="orderedQty" fill="#f59e0b" name="Ordered Quantity" />
-                  </BarChart>
-                </ResponsiveContainer>
+            <div className="analytics-card">
+              <div className="card-icon active">✅</div>
+              <div className="card-content">
+                <h4>Active Suppliers</h4>
+                <p>{stats.activeSuppliers || 0}</p>
+                <span className="card-trend positive">+5% this month</span>
               </div>
             </div>
-          )}
+
+            <div className="analytics-card">
+              <div className="card-icon pending">⏳</div>
+              <div className="card-content">
+                <h4>Pending Suppliers</h4>
+                <p>{stats.pendingSuppliers || 0}</p>
+                <span className="card-trend negative">-2% this month</span>
+              </div>
+            </div>
+
+            <div className="analytics-card">
+              <div className="card-icon orders">📦</div>
+              <div className="card-content">
+                <h4>Total Orders</h4>
+                <p>{stats.totalOrders || 0}</p>
+                <span className="card-trend positive">+18% this month</span>
+              </div>
+            </div>
+
+            <div className="analytics-card">
+              <div className="card-icon revenue">💰</div>
+              <div className="card-content">
+                <h4>Total Revenue</h4>
+                <p>ETB {stats.revenue ? stats.revenue.toLocaleString() : 0}</p>
+                <span className="card-trend positive">+22% this month</span>
+              </div>
+            </div>
+
+            <div className="analytics-card">
+              <div className="card-icon growth">📈</div>
+              <div className="card-content">
+                <h4>Platform Growth</h4>
+                <p>+15%</p>
+                <span className="card-trend positive">Overall growth rate</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Grid */}
+          <div className="charts-grid">
+            {/* Revenue Trend Chart */}
+            <div className="chart-section">
+              <div className="chart-header">
+                <h3>Revenue Trend</h3>
+                <span className="chart-subtitle">Last 6 months performance</span>
+              </div>
+              <div className="chart-box">
+                {stats.revenueChart && stats.revenueChart.labels && (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart
+                      data={stats.revenueChart.labels.map((label, idx) => ({
+                        month: label,
+                        revenue: stats.revenueChart.values[idx],
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="month" 
+                        stroke="#6b7280"
+                        fontSize={12}
+                      />
+                      <YAxis 
+                        stroke="#6b7280"
+                        fontSize={12}
+                        tickFormatter={(value) => `ETB ${value/1000}k`}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`ETB ${value.toLocaleString()}`, 'Revenue']}
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="revenue" 
+                        stroke="#10b981" 
+                        strokeWidth={3}
+                        dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: '#059669' }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* Orders Trend Chart */}
+            <div className="chart-section">
+              <div className="chart-header">
+                <h3>Orders Trend</h3>
+                <span className="chart-subtitle">Order volume over time</span>
+              </div>
+              <div className="chart-box">
+                {stats.ordersChart && stats.ordersChart.labels && (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                      data={stats.ordersChart.labels.map((label, idx) => ({
+                        month: label,
+                        orders: stats.ordersChart.values[idx],
+                      }))}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="month" 
+                        stroke="#6b7280"
+                        fontSize={12}
+                      />
+                      <YAxis 
+                        stroke="#6b7280"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Bar 
+                        dataKey="orders" 
+                        fill="#2563eb" 
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
+            {/* Top Suppliers */}
+            {stats.topSuppliers && stats.topSuppliers.length > 0 && (
+              <div className="chart-section">
+                <div className="chart-header">
+                  <h3>Top Suppliers</h3>
+                  <span className="chart-subtitle">By order volume</span>
+                </div>
+                <div className="chart-box">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.topSuppliers}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="supplierName" 
+                        stroke="#6b7280"
+                        fontSize={12}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        stroke="#6b7280"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Bar 
+                        dataKey="orderCount" 
+                        fill="#8b5cf6" 
+                        name="Orders"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Top Products */}
+            {stats.topProducts && stats.topProducts.length > 0 && (
+              <div className="chart-section">
+                <div className="chart-header">
+                  <h3>Top Products</h3>
+                  <span className="chart-subtitle">By quantity ordered</span>
+                </div>
+                <div className="chart-box">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.topProducts}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="#6b7280"
+                        fontSize={12}
+                        angle={-45}
+                        textAnchor="end"
+                        height={80}
+                      />
+                      <YAxis 
+                        stroke="#6b7280"
+                        fontSize={12}
+                      />
+                      <Tooltip 
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }}
+                      />
+                      <Bar 
+                        dataKey="orderedQty" 
+                        fill="#f59e0b" 
+                        name="Ordered Quantity"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

@@ -19,7 +19,9 @@ const QuoteSchema = new Schema(
     notes: { type: String, default: "" },
 
     // Price offered by supplier in response
-    proposedPrice: { type: Number, default: null },
+    buyerProposedPrice: { type: Number, default: null },
+supplierProposedPrice: { type: Number, default: null },
+
 
     // Supplier counter minimum quantity (optional)
     minimumOrderQty: { type: Number, default: null },

@@ -18,7 +18,11 @@ interface Product {
   images?: string[];
   price: number;
   finalPrice?: number;
-  discount?: { active: boolean; percentage: number };
+discount?: {
+  active: boolean;
+  percentage: number;
+  expiresAt?: string;
+};
   stock: number;
   unit: string;
   rating?: { average: number; count: number };
@@ -51,6 +55,14 @@ function ManufacturerProductsView() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
 
   useEffect(() => {
     fetchProducts();
@@ -159,10 +171,19 @@ function ManufacturerProductsView() {
                     style={styles.cardImage}
                   />
                   {product.discount?.active && (
-                    <Badge style={styles.discountBadge} size={28}>
-                      {String(product.discount.percentage) + '%'}
-                    </Badge>
-                  )}
+  <View style={styles.discountContainer}>
+    <Badge style={styles.discountBadge} size={32}>
+      {`${product.discount.percentage}%`}
+    </Badge>
+
+    {product.discount?.expiresAt && (
+      <Text style={styles.discountExpireText}>
+        Ends {formatDate(product.discount.expiresAt)}
+      </Text>
+    )}
+  </View>
+)}
+
                   {product.stock === 0 && (
                     <View style={styles.outOfStockOverlay}>
                       <Text style={styles.outOfStockText}>Out of Stock</Text>
@@ -508,6 +529,7 @@ function SupplierProductsView() {
           </View>
         )}
       </ScrollView>
+      
 
       <FAB
         icon="plus"
@@ -578,4 +600,18 @@ const styles = StyleSheet.create({
   actionBtn: { flex: 1 },
   fullWidthBtn: { flex: 1, maxWidth: '100%' },
   fab: { position: 'absolute', right: 16, bottom: 16 },
+   discountContainer: {
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  alignItems: 'center',
+},
+discountExpireText: {
+  color: '#fff',
+  fontSize: 10,
+  marginTop: 2,
+  backgroundColor: 'rgba(0,0,0,0.6)',
+  paddingHorizontal: 4,
+  borderRadius: 4,
+},
 });

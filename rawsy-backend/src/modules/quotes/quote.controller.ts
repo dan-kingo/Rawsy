@@ -12,7 +12,7 @@ import { saveNotification, sendPushNotification } from "../../services/notificat
 export const requestQuote = async (req: Request, res: Response) => {
   try {
     const buyer = (req as any).user;
-    const { productId, quantityRequested, notes } = req.body;
+    const { productId, quantityRequested, notes, buyerProposedPrice } = req.body;
 
     if (!productId || !quantityRequested || quantityRequested < 1)
       return res.status(400).json({ error: "productId and valid quantityRequested required" });
@@ -25,6 +25,11 @@ export const requestQuote = async (req: Request, res: Response) => {
 
     const supplier = await User.findById(product.supplier);
     if (!supplier) return res.status(404).json({ error: "Supplier not found" });
+  const numericBuyerPrice = Number(buyerProposedPrice);
+
+if (isNaN(numericBuyerPrice) || numericBuyerPrice <= 0) {
+  return res.status(400).json({ error: "Valid buyerProposedPrice is required" });
+}
 
     const quote = await QuoteRequest.create({
       buyer: buyer.id,
@@ -35,6 +40,7 @@ export const requestQuote = async (req: Request, res: Response) => {
         unit: product.unit,
         price: product.price
       },
+      buyerProposedPrice,
       quantityRequested,
       notes,
       status: "pending"
@@ -110,7 +116,7 @@ export const respondToQuote = async (req: Request, res: Response) => {
   try {
     const supplier = (req as any).user;
     const { id } = req.params;
-    const { action, proposedPrice, minimumOrderQty, supplierMessage } = req.body;
+    const { action, supplierProposedPrice, counterMinimumQty, supplierMessage } = req.body;
 
     const quote = await QuoteRequest.findById(id).populate("buyer").populate("product");
     if (!quote) return res.status(404).json({ error: "Quote not found" });
@@ -124,11 +130,16 @@ export const respondToQuote = async (req: Request, res: Response) => {
     const buyer: any = quote.buyer;
 
     if (action === "counter") {
-      if (!proposedPrice || proposedPrice <= 0)
-        return res.status(400).json({ error: "Valid proposedPrice is required" });
+      const numericPrice = Number(supplierProposedPrice);
 
-      quote.counterPrice = proposedPrice;
-      quote.counterMinimumQty = minimumOrderQty || null;
+if (isNaN(numericPrice) || numericPrice <= 0)
+  return res.status(400).json({ error: "Valid proposedPrice is required" });
+
+      quote.counterPrice = numericPrice;
+quote.counterMinimumQty = counterMinimumQty !== undefined && counterMinimumQty !== ''
+  ? Number(counterMinimumQty)
+  : null as any;
+
       quote.supplierMessage = supplierMessage || "";
       quote.status = "supplier_counter";
 
@@ -292,21 +303,19 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
 
     if (!["supplier_accept", "buyer_accept", "supplier_counter"].includes(quote.status))
       return res.status(400).json({ error: "Quote must be accepted before converting" });
-
+    const quantityToOrder = quote.counterMinimumQty || quote.quantityRequested;
     const product: any = await Product.findById(quote.product._id);
-    if (!product || product.stock < quote.quantityRequested)
+    if (!product || product.stock < quantityToOrder)
       return res.status(400).json({ error: "Insufficient stock" });
-
     await Product.findOneAndUpdate(
-      { _id: product._id, stock: { $gte: quote.quantityRequested } },
-      { $inc: { stock: -quote.quantityRequested } }
+      { _id: product._id, stock: { $gte: quantityToOrder} },
+      { $inc: { stock: -quantityToOrder } }
     );
 
     if (!quote.productSnapshot?.price)
       return res.status(500).json({ error: "Product price snapshot missing" });
-
     const finalPrice = quote.counterPrice || quote.productSnapshot.price;
-    const subtotal = finalPrice * quote.quantityRequested;
+    const subtotal = finalPrice * quantityToOrder;
 
     const buyerData: any = await User.findById(buyer.id);
 
@@ -318,7 +327,7 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
           product: product._id,
           name: product.name,
           unitPrice: finalPrice,
-          quantity: quote.quantityRequested,
+          quantity: quantityToOrder,
           unit: product.unit,
           subtotal
         }

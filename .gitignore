@@ -39,7 +39,7 @@ rawsy-frontend/temp/
 rawsy-frontend/logs/
 rawsy-frontend/.env
 rawsy-frontend/.env.local
-
+rawsy-frontend/expo-env.d.ts
 ########################################
 # Rawsy Admin Portal (Next.js)
 ########################################

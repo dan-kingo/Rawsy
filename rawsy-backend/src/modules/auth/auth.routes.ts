@@ -56,6 +56,9 @@ router.put("/me", authenticate, async (req: any, res) => {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     });
 
+      // Accept an optional company description from frontend and store it as companyDescription
+      if (req.body.description !== undefined) updates.companyDescription = req.body.description;
+
     const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, {
       new: true,
     }).select("-password");
@@ -78,8 +81,8 @@ router.post(
   uploadProfileImage
 );
 
-// Public profile
-router.get("/profile/:id", authenticate, getPublicUserProfile);
+// Public profile (no authentication required so frontend can fetch supplier public info)
+router.get("/profile/:id", getPublicUserProfile);
 
 // Factory / Business Location
 router.put("/me/location", authenticate, updateFactoryOrBusinessLocation);

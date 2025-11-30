@@ -20,18 +20,28 @@ export default function CompleteProfileScreen() {
   const { theme } = useTheme();
   const router = useRouter();
 
+  // Prefill fields from the current user where available
   const [companyName, setCompanyName] = useState(user?.companyName || '');
-  const [tinNumber, setTinNumber] = useState('');
-  const [description, setDescription] = useState('');
-  const [address, setAddress] = useState('');
-  const [placeName, setPlaceName] = useState('');
-  const [contactName, setContactName] = useState(user?.name || '');
-  const [contactPhone, setContactPhone] = useState(user?.phone || '');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [tinNumber, setTinNumber] = useState(user?.tinNumber || '');
+  const [description, setDescription] = useState(user?.companyDescription || '');
+
+  // location: supplier -> businessLocation, manufacturer -> factoryLocation
+  const existingLocation: any = user?.businessLocation || user?.factoryLocation || {};
+  const [address, setAddress] = useState(existingLocation.address || '');
+  const [placeName, setPlaceName] = useState(existingLocation.placeName || '');
+  const [contactName, setContactName] = useState(existingLocation.contactName || user?.name || '');
+  const [contactPhone, setContactPhone] = useState(existingLocation.contactPhone || user?.phone || '');
+  const [latitude, setLatitude] = useState(
+    existingLocation.coordinates?.lat !== undefined ? String(existingLocation.coordinates.lat) : ''
+  );
+  const [longitude, setLongitude] = useState(
+    existingLocation.coordinates?.lng !== undefined ? String(existingLocation.coordinates.lng) : ''
+  );
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(user?.profileImage || null);
+
   const isSupplier = user?.role === 'supplier';
   const isManufacturer = user?.role === 'manufacturer';
 
@@ -58,14 +68,16 @@ export default function CompleteProfileScreen() {
   const handleSubmit = async () => {
     setError('');
 
-    if (isManufacturer && !companyName) {
+    // companyName is required for all roles
+    if (!companyName) {
       setError('Company name is required');
       return;
     }
 
+    // Require location/contact for suppliers
     if (isSupplier) {
-      if (!companyName || !address || !contactName || !contactPhone) {
-        setError('Please fill all required fields');
+      if (!address || !contactName || !contactPhone) {
+        setError('Please fill all required fields for suppliers');
         return;
       }
     }
@@ -76,10 +88,12 @@ export default function CompleteProfileScreen() {
       const updates: any = {};
       if (companyName) updates.companyName = companyName;
       if (tinNumber) updates.tinNumber = tinNumber;
+      if (description) updates.description = description;
 
       await api.put('/auth/me', updates);
 
-      if (isSupplier && address && contactName && contactPhone) {
+      // Submit location for either role when provided. Backend will map to factoryLocation or businessLocation based on role.
+      if ((isSupplier || isManufacturer) && address && contactName && contactPhone) {
         const lat = parseFloat(latitude) || 9.03;
         const lng = parseFloat(longitude) || 38.74;
 
@@ -144,7 +158,7 @@ export default function CompleteProfileScreen() {
             </Text>
 
             <TextInput
-              label={isManufacturer ? 'Company Name (Optional)' : 'Company Name *'}
+              label={'Company Name *'}
               value={companyName}
               onChangeText={setCompanyName}
               mode="outlined"
@@ -160,24 +174,22 @@ export default function CompleteProfileScreen() {
               style={styles.input}
             />
 
-            {isSupplier && (
-              <TextInput
-                label="Company Description"
-                value={description}
-                onChangeText={setDescription}
-                mode="outlined"
-                multiline
-                numberOfLines={4}
-                style={styles.input}
-              />
-            )}
+            <TextInput
+              label="Company Description"
+              value={description}
+              onChangeText={setDescription}
+              mode="outlined"
+              multiline
+              numberOfLines={4}
+              style={styles.input}
+            />
           </Surface>
 
-          {isSupplier && (
+          {(isSupplier || isManufacturer) && (
             <>
               <Surface style={[styles.section, { backgroundColor: theme.colors.surface }]} elevation={1}>
                 <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Business Location *
+                  {isManufacturer ? 'Factory Location *' : 'Business Location *'}
                 </Text>
 
                 <TextInput
@@ -223,11 +235,11 @@ export default function CompleteProfileScreen() {
 
               <Surface style={[styles.section, { backgroundColor: theme.colors.surface }]} elevation={1}>
                 <Text variant="titleMedium" style={styles.sectionTitle}>
-                  Contact Person *
+                  Contact Person {isSupplier ? '*' : ''}
                 </Text>
 
                 <TextInput
-                  label="Contact Name *"
+                  label="Contact Name"
                   value={contactName}
                   onChangeText={setContactName}
                   mode="outlined"
@@ -235,7 +247,7 @@ export default function CompleteProfileScreen() {
                 />
 
                 <TextInput
-                  label="Contact Phone *"
+                  label="Contact Phone"
                   value={contactPhone}
                   onChangeText={setContactPhone}
                   mode="outlined"
@@ -268,16 +280,16 @@ export default function CompleteProfileScreen() {
             </HelperText>
           )}
 
-          {/* <View style={styles.infoBox}>
+          <View style={styles.infoBox}>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 20 }}>
               {isManufacturer
                 ? 'You can complete your profile now or skip and do it later from your account settings.'
                 : 'Suppliers must provide business location and contact details to start selling on Rawsy.'}
             </Text>
-          </View> */}
+          </View>
         </ScrollView>
 
-        <Surface style={[styles.footer, { backgroundColor: theme.colors.background }]} elevation={4}>
+        <Surface style={styles.footer} elevation={4}>
           <Button mode="outlined" onPress={handleSkip} style={styles.footerButton} disabled={loading}>
             {isManufacturer ? 'Skip for Now' : 'Complete Later'}
           </Button>
@@ -345,9 +357,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     gap: 12,
+    backgroundColor: '#fff',
   },
   footerButton: {
     flex: 1,
-    marginBottom: 40
   },
 });

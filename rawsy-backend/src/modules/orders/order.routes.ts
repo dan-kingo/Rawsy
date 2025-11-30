@@ -21,7 +21,9 @@ import { placeOrder,
   getOrderTrackingDetails,
   uploadPaymentProof,
   approvePayment,
-  rejectPayment } from "./order.controller";
+  rejectPayment,
+  getBuyerInvoiceUrl,
+  getSupplierInvoiceUrl } from "./order.controller";
 import { requireAdmin } from "../../middlewares/admin.middleware";
 import { requireRole } from "../../middlewares/roles.middleware";
 import { blockSuspendedUsers } from "../../middlewares/blockSuspended.middleware";
@@ -52,6 +54,9 @@ router.get("/:id/timeline", authenticate, getOrderTimeline);
 // Download invoice
 router.get("/:id/invoice/buyer", authenticate, downloadBuyerInvoice);
 router.get("/:id/invoice/supplier", authenticate, downloadSupplierInvoice);
+// Return authenticated JSON URLs for invoices (frontend will open these URLs)
+router.get('/:id/invoice/buyer/url', authenticate, getBuyerInvoiceUrl);
+router.get('/:id/invoice/supplier/url', authenticate, getSupplierInvoiceUrl);
 router.post(
   "/",
   authenticate,

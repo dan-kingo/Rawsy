@@ -10,14 +10,16 @@ import {
   Surface,
   Menu,
   Searchbar,
+  Snackbar,
 } from 'react-native-paper';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../../services/api';
 import PaymentUploadDialog from '../../components/PaymentUploadDialog';
+ import { useFocusEffect } from '@react-navigation/native';
 
 export default function OrdersScreen() {
   const { theme } = useTheme();
@@ -34,11 +36,18 @@ export default function OrdersScreen() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [actioningOrderId, setActioningOrderId] = useState<string | null>(null);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarError, setSnackbarError] = useState(false);
+const [reviewedOrders, setReviewedOrders] = useState<string[]>([]);
 
-  useEffect(() => {
+ useFocusEffect(
+  useCallback(() => {
+    // refetch orders and reviewed orders whenever screen is focused
     fetchOrders();
-  }, []);
-
+    fetchMyReviews();
+  }, [])
+);
   const fetchOrders = async () => {
     try {
       setLoading(true);
@@ -59,6 +68,15 @@ export default function OrdersScreen() {
       setLoading(false);
     }
   };
+  const fetchMyReviews = async () => {
+  try {
+    const res = await api.get('/reviews/my');
+    const reviewed = res.data.map((r: any) => r.order);
+    setReviewedOrders(reviewed);
+  } catch (err) {
+    console.log("Could not fetch user reviews");
+  }
+};
 
   const applyFilters = (orderList: any[], filter: string, search: string) => {
     let filtered = [...orderList];
@@ -155,6 +173,36 @@ export default function OrdersScreen() {
       setActioningOrderId(null);
     }
   };
+const handleCancelOrder = async (orderId: string) => {
+  Alert.alert(
+    'Cancel Order',
+    'Are you sure you want to cancel this order?',
+    [
+      { text: 'No', style: 'cancel' },
+      {
+        text: 'Yes',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setActioningOrderId(orderId); // show loading state on this order
+            await api.put(`/orders/${orderId}/cancel`); // call backend cancel endpoint
+              setSnackbarMessage('Order cancelled successfully');
+              setSnackbarError(false);
+              setSnackbarVisible(true);
+              await fetchOrders(); // refresh orders list
+          } catch (error: any) {
+              const msg = error?.response?.data?.error || 'Failed to cancel order';
+              setSnackbarMessage(msg);
+              setSnackbarError(true);
+              setSnackbarVisible(true);
+          } finally {
+            setActioningOrderId(null);
+          }
+        },
+      },
+    ]
+  );
+};
 
   const handleMarkDelivered = async (orderId: string) => {
     try {
@@ -246,13 +294,16 @@ export default function OrdersScreen() {
 
   const displayOrders = filteredOrders.length > 0 ? filteredOrders : orders;
   const isSupplier = user?.role === 'supplier';
-
+  const isManufacturer = user?.role === 'manufacturer';
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={isSupplier ? 'Supplier Orders' : 'My Orders'} />
-        {isSupplier && (
+        {user?.role === 'manufacturer' && (
+          <Appbar.Action icon="file-document" onPress={() => router.push('/invoices')} />
+        )}
+        {(isSupplier || isManufacturer) && (
           <Menu
             visible={filterMenuVisible}
             onDismiss={() => setFilterMenuVisible(false)}
@@ -407,18 +458,85 @@ export default function OrdersScreen() {
                     </Text>
                   </View>
 
-                  {user?.role === 'manufacturer' &&
-                    order.paymentMethod === 'bank_transfer' &&
-                    order.paymentStatus === 'pending' && (
-                      <Button
-                        mode="contained"
-                        onPress={() => handleUploadPayment(order._id)}
-                        style={styles.uploadButton}
-                        icon="upload"
-                      >
-                        Upload Payment Proof
-                      </Button>
-                    )}
+                  {(() => {
+                    const showUpload = user?.role === 'manufacturer' && order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'pending' &&  order.status === 'confirmed';
+                    const showCancel = user?.role === 'manufacturer' && String(order.status || '').trim().toLowerCase() === 'placed';
+
+                    if (showUpload && showCancel) {
+                      return (
+                        <View style={styles.actionRow}>
+                          <Button
+                            mode="contained"
+                            onPress={() => handleUploadPayment(order._id)}
+                            style={[styles.actionBtnHalf, { marginRight: 8 }]}
+                            icon="upload"
+                          >
+                            Upload Proof
+                          </Button>
+
+                          <Button
+                            mode="contained"
+                            onPress={() => handleCancelOrder(order._id)}
+                            style={[styles.actionBtnHalf, { backgroundColor: '#ef4444' }]}
+                            icon="cancel"
+                            loading={actioningOrderId === order._id}
+                            disabled={actioningOrderId === order._id}
+                            textColor="#fff"
+                          >
+                            Cancel
+                          </Button>
+                        </View>
+                      );
+                    }
+
+                    if (showUpload) {
+                      return (
+                        <Button
+                          mode="contained"
+                          onPress={() => handleUploadPayment(order._id)}
+                          style={styles.uploadButton}
+                          icon="upload"
+                        >
+                          Upload Payment Proof
+                        </Button>
+                      );
+                    }
+
+                    if (showCancel) {
+                      return (
+                        <Button
+                          mode="contained"
+                          onPress={() => handleCancelOrder(order._id)}
+                          style={[styles.actionButton, { backgroundColor: '#ef4444' }]}
+                          icon="cancel"
+                          loading={actioningOrderId === order._id}
+                          disabled={actioningOrderId === order._id}
+                        >
+                          Cancel Order
+                        </Button>
+                      );
+                    }
+
+                    return null;
+                  })()}
+                  {/* WRITE REVIEW BUTTON */}
+{user?.role === 'manufacturer' &&
+ order.status === 'delivered' &&
+ !reviewedOrders.includes(order._id) && (
+  <Button
+    mode="contained"
+    icon="star"
+    style={[styles.actionButton, { marginTop: 8 }]}
+    onPress={() =>
+      router.push({
+        pathname: "/ReviewForm",
+        params: { orderId: String(order._id) },
+      })
+    }
+  >
+    Write Review
+  </Button>
+)}
 
                   {order.paymentProof && (
                     <View style={[styles.proofSection, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -506,6 +624,15 @@ export default function OrdersScreen() {
           }}
         />
       )}
+
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+        style={{ backgroundColor: snackbarError ? '#b91c1c' : undefined }}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </View>
   );
 }
@@ -622,6 +749,15 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  actionBtnHalf: {
+    flex: 1,
+    paddingVertical: 6,
   },
   statusButton: {
     marginTop: 4,

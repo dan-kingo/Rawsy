@@ -33,6 +33,11 @@ const ProductSchema = new Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending"      
     },
+    paymentMethod: {
+  type: [String],
+  enum: ["bank_transfer", "cash on delivery"],
+  default: ["bank_transfer"]
+},
     rejectionReason: { type: String, default: null },
 
     // ⭐ Rating
@@ -41,7 +46,8 @@ const ProductSchema = new Schema(
       count: { type: Number, default: 0 }
     },
 
-    negotiable: { type: Boolean, default: false }
+    negotiable: { type: Boolean, default: false },
+    flagged: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -8,7 +8,8 @@ import {
   removeFromCart,
   updateCartQuantity,
   getCart,
-  clearCart
+  clearCart,
+  checkoutDirect
 } from "./cart.controller";
 
 const router = Router();
@@ -22,5 +23,5 @@ router.post("/update", updateCartQuantity);
 router.get("/list", getCart);
 router.post("/clear", clearCart);
 router.post("/checkout", checkoutCart);
-
+router.post("/checkout-direct", checkoutDirect);
 export default router;

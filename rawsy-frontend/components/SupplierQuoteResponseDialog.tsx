@@ -28,8 +28,8 @@ export default function SupplierQuoteResponseDialog({
 }: SupplierQuoteResponseDialogProps) {
   const { theme } = useTheme();
   const [action, setAction] = useState<'accept' | 'reject' | 'counter'>('counter');
-  const [proposedPrice, setProposedPrice] = useState('');
-  const [minimumOrderQty, setMinimumOrderQty] = useState('');
+  const [counterPrice, setcounterPrice] = useState('');
+  const [counterMinimumQty, setcounterMinimumQty] = useState('');
   const [supplierMessage, setSupplierMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,8 +38,8 @@ export default function SupplierQuoteResponseDialog({
     setError('');
 
     if (action === 'counter') {
-      const price = parseFloat(proposedPrice);
-      if (!proposedPrice || isNaN(price) || price <= 0) {
+      const price = parseFloat(counterPrice);
+      if (!counterPrice || isNaN(price) || price <= 0) {
         setError('Please enter a valid price');
         return;
       }
@@ -50,9 +50,9 @@ export default function SupplierQuoteResponseDialog({
       const payload: any = { action };
 
       if (action === 'counter') {
-        payload.proposedPrice = parseFloat(proposedPrice);
-        if (minimumOrderQty) {
-          payload.minimumOrderQty = parseFloat(minimumOrderQty);
+payload.supplierProposedPrice = parseFloat(counterPrice);
+        if (counterMinimumQty) {
+          payload.counterMinimumQty = parseFloat(counterMinimumQty);
         }
       }
 
@@ -93,8 +93,8 @@ export default function SupplierQuoteResponseDialog({
 
   const resetForm = () => {
     setAction('counter');
-    setProposedPrice('');
-    setMinimumOrderQty('');
+    setcounterPrice('');
+    setcounterMinimumQty('');
     setSupplierMessage('');
     setError('');
   };
@@ -118,7 +118,7 @@ export default function SupplierQuoteResponseDialog({
               From: {quote?.buyer?.name}
             </Text>
             <Text variant="bodySmall" style={[styles.requestedQty, { color: theme.colors.primary }]}>
-              Requested: {quote?.quantityRequested} {quote?.productSnapshot?.unit} @ {quote?.productSnapshot?.price} ETB
+Requested: {quote?.counterMinimumQty || quote?.quantityRequested} {quote?.productSnapshot?.unit} × {quote?.buyerProposedPrice?? quote?.productSnapshot?.price  } ETB
             </Text>
           </View>
 
@@ -148,9 +148,9 @@ export default function SupplierQuoteResponseDialog({
           {action === 'counter' && (
             <View style={styles.counterForm}>
               <TextInput
-                label="Proposed Price (ETB)"
-                value={proposedPrice}
-                onChangeText={setProposedPrice}
+                label="Counter Price (ETB)"
+                value={counterPrice}
+                onChangeText={setcounterPrice}
                 mode="outlined"
                 keyboardType="numeric"
                 placeholder="Enter your price"
@@ -160,8 +160,8 @@ export default function SupplierQuoteResponseDialog({
 
               <TextInput
                 label={`Minimum Order Quantity (${quote?.productSnapshot?.unit}) - Optional`}
-                value={minimumOrderQty}
-                onChangeText={setMinimumOrderQty}
+                value={counterMinimumQty}
+                onChangeText={setcounterMinimumQty}
                 mode="outlined"
                 keyboardType="numeric"
                 placeholder="Enter minimum quantity"
@@ -204,14 +204,18 @@ export default function SupplierQuoteResponseDialog({
             mode="contained"
             onPress={handleSubmit}
             loading={loading}
-            disabled={loading || (action === 'counter' && !proposedPrice)}
+            disabled={loading || (action === 'counter' && !counterPrice)}
           >
             {action === 'accept' ? 'Accept' : action === 'reject' ? 'Reject' : 'Send Counter Offer'}
           </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
+
+    
   );
+    
+
 }
 
 const styles = StyleSheet.create({
