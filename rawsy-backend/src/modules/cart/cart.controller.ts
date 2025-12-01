@@ -153,7 +153,8 @@ export const checkoutCart = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
     const { paymentMethod, delivery } = req.body;
-    
+    const paymentProofFile = (req as any).file;
+
     // load user with cart populated
     const userData = await User.findById(user.id).populate("cart.product");
     if (!userData) return res.status(404).json({ error: "User not found" });
@@ -201,6 +202,12 @@ export const checkoutCart = async (req: Request, res: Response) => {
     }
     const supplierId = firstProduct.supplier.toString();
 
+    // Handle payment proof upload for bank transfer
+    let paymentProofUrl = null;
+    if (finalPaymentMethod === 'bank_transfer' && paymentProofFile) {
+      paymentProofUrl = paymentProofFile.path;
+    }
+
     // Build items and check stock for each product atomically
     const items: any[] = [];
     let total = 0;
@@ -238,6 +245,12 @@ export const checkoutCart = async (req: Request, res: Response) => {
       });
     }
 
+    // Determine initial payment status
+    let initialPaymentStatus = "pending";
+    if (finalPaymentMethod === 'bank_transfer' && paymentProofUrl) {
+      initialPaymentStatus = "pending_review";
+    }
+
     // create order
     const order = await Order.create({
       buyer: user.id,
@@ -245,7 +258,8 @@ export const checkoutCart = async (req: Request, res: Response) => {
       items,
       total,
       paymentMethod: finalPaymentMethod,
-      paymentStatus: "pending",
+      paymentStatus: initialPaymentStatus,
+      paymentProof: paymentProofUrl,
       delivery: deliveryInfo, // can be null if no delivery required
       status: "placed",
       stockReserved: true,

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { requireRole } from "../../middlewares/roles.middleware";
+import { upload } from "../../middlewares/upload.middleware";
 import { checkoutCart } from "./cart.controller";
 
 import {
@@ -22,6 +23,6 @@ router.post("/remove", removeFromCart);
 router.post("/update", updateCartQuantity);
 router.get("/list", getCart);
 router.post("/clear", clearCart);
-router.post("/checkout", checkoutCart);
+router.post("/checkout", upload.single("paymentProof"), checkoutCart);
 router.post("/checkout-direct", checkoutDirect);
 export default router;

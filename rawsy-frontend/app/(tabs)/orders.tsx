@@ -19,6 +19,7 @@ import { useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../../services/api';
 import PaymentUploadDialog from '../../components/PaymentUploadDialog';
+import PaymentProofViewer from '../../components/PaymentProofViewer';
  import { useFocusEffect } from '@react-navigation/native';
 
 export default function OrdersScreen() {
@@ -539,11 +540,14 @@ const handleCancelOrder = async (orderId: string) => {
 )}
 
                   {order.paymentProof && (
-                    <View style={[styles.proofSection, { backgroundColor: theme.colors.primaryContainer }]}>
-                      <MaterialIcons name="check-circle" size={16} color={theme.colors.primary} />
-                      <Text variant="bodySmall" style={{ color: theme.colors.onPrimaryContainer }}>
-                        Payment proof submitted
-                      </Text>
+                    <View style={styles.paymentProofSection}>
+                      <View style={[styles.proofHeader, { backgroundColor: theme.colors.primaryContainer }]}>
+                        <MaterialIcons name="receipt" size={18} color={theme.colors.primary} />
+                        <Text variant="titleSmall" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '600' }}>
+                          Payment Proof
+                        </Text>
+                      </View>
+                      <PaymentProofViewer imageUrl={order.paymentProof} compact={true} />
                     </View>
                   )}
 
@@ -728,6 +732,16 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     marginTop: 8,
+  },
+  paymentProofSection: {
+    marginTop: 12,
+  },
+  proofHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 8,
   },
   proofSection: {
     flexDirection: 'row',

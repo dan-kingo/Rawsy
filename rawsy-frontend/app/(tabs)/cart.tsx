@@ -1,17 +1,18 @@
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Image } from 'react-native';
 import { Text, Appbar, Button, Card, IconButton, Divider, ActivityIndicator } from 'react-native-paper';
 import { useTheme } from '../../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import CheckoutDialog from '../../components/CheckoutDialog';
 
 export default function CartScreen() {
   const { theme } = useTheme();
   const { user } = useAuth();
   const [cart, setCart] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkingOut, setCheckingOut] = useState(false);
+  const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
 
   useEffect(() => {
     fetchCart();
@@ -51,7 +52,7 @@ export default function CartScreen() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (cart.length === 0) {
       Alert.alert('Error', 'Your cart is empty');
       return;
@@ -80,38 +81,7 @@ export default function CartScreen() {
       return;
     }
 
-    const availablePaymentMethods = firstProduct.paymentMethod &&
-                                    Array.isArray(firstProduct.paymentMethod) &&
-                                    firstProduct.paymentMethod.length > 0
-      ? firstProduct.paymentMethod
-      : ['bank_transfer'];
-
-    const paymentMethod = availablePaymentMethods[0];
-
-    try {
-      setCheckingOut(true);
-      const checkoutPayload: any = {
-        paymentMethod: paymentMethod,
-      };
-
-      if (deliveryRequired && user?.factoryLocation) {
-        checkoutPayload.delivery = {
-          address: user.factoryLocation.address,
-          contactName: user.factoryLocation.contactName,
-          contactPhone: user.factoryLocation.contactPhone,
-        };
-      }
-
-      const response = await api.post('/cart/checkout', checkoutPayload);
-      Alert.alert('Success', 'Order placed successfully!');
-      await fetchCart();
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      const errorMessage = error.response?.data?.error || 'Checkout failed';
-      Alert.alert('Checkout Error', errorMessage);
-    } finally {
-      setCheckingOut(false);
-    }
+    setShowCheckoutDialog(true);
   };
 
   const calculateTotal = () => {
@@ -164,12 +134,19 @@ export default function CartScreen() {
               <Card key={index} style={styles.cartItem}>
                 <Card.Content>
                   <View style={styles.itemRow}>
+                    {item.product?.image || item.product?.images?.[0] ? (
+                      <Image
+                        source={{ uri: item.product.image || item.product.images[0] }}
+                        style={styles.productImage}
+                        resizeMode="cover"
+                      />
+                    ) : null}
                     <View style={styles.itemInfo}>
-                      <Text variant="titleMedium" numberOfLines={1}>
+                      <Text variant="titleMedium" numberOfLines={2}>
                         {item.product?.name || 'Unknown Product'}
                       </Text>
                       <Text variant="bodySmall" style={styles.category}>
-                        Category: {item.product?.category}
+                        {item.product?.category}
                       </Text>
                       <Text variant="titleMedium" style={styles.itemPrice}>
 {(item.product?.discount?.active
@@ -227,15 +204,24 @@ Subtotal: {(
             <Button
               mode="contained"
               onPress={handleCheckout}
-              loading={checkingOut}
-              disabled={checkingOut}
               style={styles.checkoutButton}
+              icon="shopping"
             >
               Proceed to Checkout
             </Button>
           </View>
         </>
       )}
+
+      <CheckoutDialog
+        visible={showCheckoutDialog}
+        onDismiss={() => setShowCheckoutDialog(false)}
+        cartItems={cart}
+        totalAmount={calculateTotal()}
+        onSuccess={() => {
+          fetchCart();
+        }}
+      />
     </View>
   );
 }
@@ -273,10 +259,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 12,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
   },
   itemInfo: {
     flex: 1,
-    marginRight: 12,
   },
   category: {
     color: '#fff',
