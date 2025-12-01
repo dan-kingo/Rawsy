@@ -314,10 +314,22 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
 
     if (!quote.productSnapshot?.price)
       return res.status(500).json({ error: "Product price snapshot missing" });
-    const finalPrice = quote.counterPrice || quote.productSnapshot.price;
+
+    let finalPrice = quote.productSnapshot.price;
+
+    if (quote.status === "supplier_counter" && quote.counterPrice) {
+      finalPrice = quote.counterPrice;
+    } else if (quote.status === "supplier_accept" && quote.buyerProposedPrice) {
+      finalPrice = quote.buyerProposedPrice;
+    } else if (quote.status === "buyer_accept" && quote.counterPrice) {
+      finalPrice = quote.counterPrice;
+    }
+
     const subtotal = finalPrice * quantityToOrder;
 
     const buyerData: any = await User.findById(buyer.id);
+    const finalPaymentMethod = paymentMethod || "bank_transfer";
+    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
 
     const order = await Order.create({
       buyer: buyer.id,
@@ -333,8 +345,8 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
         }
       ],
       total: subtotal,
-      paymentMethod: paymentMethod || "bank_transfer",
-      paymentStatus: "pending",
+      paymentMethod: finalPaymentMethod,
+      paymentStatus,
       delivery: delivery || buyerData.factoryLocation || {},
       status: "placed",
       reference: "RAW-" + Date.now(),

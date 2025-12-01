@@ -59,12 +59,15 @@ export const placeOrder = async (req: Request, res: Response) => {
       }
     ];
 
+    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
+
     const order = await Order.create({
       buyer: buyer.id,
       supplier: supplierId,
       items,
       total: subtotal,
       paymentMethod: finalPaymentMethod,
+      paymentStatus,
       delivery,
       status: "placed",
       stockReserved: true,

@@ -345,6 +345,8 @@ export const checkoutDirect = async (req: Request, res: Response) => {
     const subtotal = unitPrice * quantity;
     const total = subtotal;
 
+    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
+
     const order = await Order.create({
       buyer: user.id,
       supplier: product.supplier.toString(),
@@ -360,7 +362,7 @@ export const checkoutDirect = async (req: Request, res: Response) => {
       ],
       total,
       paymentMethod: finalPaymentMethod,
-      paymentStatus: "pending",
+      paymentStatus,
       delivery: deliveryInfo,
       status: "placed",
       stockReserved: true,
