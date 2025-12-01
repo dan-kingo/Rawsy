@@ -1,16 +1,8 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import {
-  Dialog,
-  Portal,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Divider,
-} from 'react-native-paper';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
+import { useRouter } from 'expo-router';
 
 interface RequestQuoteDialogProps {
   visible: boolean;
@@ -25,7 +17,7 @@ export default function RequestQuoteDialog({
 }: RequestQuoteDialogProps) {
   const { theme } = useTheme();
   const [quantity, setQuantity] = useState('');
-  const [proposedPrice, setproposedPrice] = useState('');
+  const [proposedPrice, setProposedPrice] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +46,7 @@ export default function RequestQuoteDialog({
       await api.post('/quotes/request', {
         productId: product._id,
         quantityRequested: quantityNum,
-buyerProposedPrice: parseFloat(proposedPrice),
+        buyerProposedPrice: parseFloat(proposedPrice),
         notes: notes.trim() || undefined,
       });
 
@@ -66,6 +58,7 @@ buyerProposedPrice: parseFloat(proposedPrice),
             text: 'OK',
             onPress: () => {
               setQuantity('');
+              setProposedPrice('');
               setNotes('');
               onDismiss();
             },
@@ -83,94 +76,24 @@ buyerProposedPrice: parseFloat(proposedPrice),
 
   const handleCancel = () => {
     setQuantity('');
+    setProposedPrice('');
     setNotes('');
     setError('');
     onDismiss();
   };
 
-  return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={handleCancel} style={styles.dialog}>
-        <Dialog.Title>Request Quote</Dialog.Title>
+  const router = useRouter();
 
-        <Dialog.Content>
-          <View style={styles.productInfo}>
-            <Text variant="titleMedium" style={styles.productName}>
-              {product?.name}
-            </Text>
-            <Text variant="bodySmall" style={[styles.productPrice, { color: theme.colors.primary }]}>
-              Current Price: {product?.price} ETB/{product?.unit}
-            </Text>
-            {product?.stock > 0 && (
-              <Text variant="bodySmall" style={{ color: '#6b7280' }}>
-                Available: {product.stock} {product.unit}
-              </Text>
-            )}
-          </View>
+  useEffect(() => {
+    if (visible && product?._id) {
+      // redirect to the full-screen request quote route
+      router.push(`/request-quote/${product._id}`);
+      // dismiss the dialog state in caller
+      onDismiss();
+    }
+  }, [visible, product?._id]);
 
-          <Divider style={styles.divider} />
-
-          <TextInput
-            label={`Quantity (${product?.unit || 'units'})`}
-            value={quantity}
-            onChangeText={setQuantity}
-            mode="outlined"
-            keyboardType="numeric"
-            placeholder="Enter quantity"
-            style={styles.input}
-            error={!!error && error.includes('quantity')}
-          />
-           <TextInput
-  label={`Proposed Price (ETB/${product.unit})`}
-  value={proposedPrice}
-  onChangeText={setproposedPrice}
-  mode="outlined"
-  keyboardType="numeric"
-  placeholder="Enter your proposed price"
-  style={styles.input}
-  error={!!error && error.includes('price')}
-/>
-          <TextInput
-            label="Notes (Optional)"
-            value={notes}
-            onChangeText={setNotes}
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            placeholder="Add any special requirements or questions"
-            style={styles.input}
-          />
-
-          {error && (
-            <HelperText type="error" visible={!!error}>
-              {error}
-            </HelperText>
-          )}
-
-          <View style={styles.infoBox}>
-            <Text variant="bodySmall" style={styles.infoText}>
-              The supplier will review your request and may provide a custom quote based on your
-              quantity and requirements.
-            </Text>
-          </View>
-        </Dialog.Content>
-
-        <Dialog.Actions>
-          <Button onPress={handleCancel} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            loading={loading}
-            disabled={loading || !quantity}
-          >
-            Submit Request
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
-  );
+  return null;
 }
 
 const styles = StyleSheet.create({

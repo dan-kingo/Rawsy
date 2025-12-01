@@ -259,7 +259,7 @@ const handleBuyNowCheckout = async () => {
            {product.discount?.active && (
           <View style={styles.discountContainer}>
          <Badge style={styles.discountBadge} size={32}>
-      {`Discount  ${product.discount.percentage}%`}
+      {`${product.discount.percentage}%`}
     </Badge>
 
     {product.discount?.expiresAt && (
@@ -302,9 +302,9 @@ const handleBuyNowCheckout = async () => {
                 {product.name}
               </Text>
               {product.flagged && (
-        <Badge style={styles.flaggedBadge} size={24}>
-          FLAGGED
-        </Badge>
+          <Badge style={styles.flaggedBadge} size={24}>
+            FLAGGED
+          </Badge>
       )}
               <Chip style={styles.categoryChip} textStyle={{ textTransform: 'capitalize' }}>
                 {product.category}
@@ -330,7 +330,7 @@ const handleBuyNowCheckout = async () => {
                   {product.price} ETB
                 </Text>
                 <View style={styles.priceRow}>
-                  <Text variant="displaySmall" style={[styles.price, { color: theme.colors.primary }]}>
+                  <Text variant="displaySmall" style={[styles.price, { color: "#fff" }]}>
                     {finalPrice.toFixed(2)} ETB
                   </Text>
                   <Text variant="titleMedium" style={styles.unit}>
@@ -340,7 +340,7 @@ const handleBuyNowCheckout = async () => {
               </View>
             ) : (
               <View style={styles.priceRow}>
-                <Text variant="displaySmall" style={[styles.price, { color: theme.colors.primary }]}>
+                <Text variant="displaySmall" style={[styles.price, { color: "#fff" }]}>
                   {product.price} ETB
                 </Text>
                 <Text variant="titleMedium" style={styles.unit}>
@@ -465,7 +465,7 @@ const handleBuyNowCheckout = async () => {
       </ScrollView>
 
       {user?.role === 'manufacturer' && (
-        <Surface style={styles.actionBar} elevation={4}>
+        <Surface style={[styles.actionBar, {backgroundColor: theme.colors.background}]} elevation={4}>
           <Button
             mode="outlined"
             onPress={handleAddToCart}
@@ -480,7 +480,7 @@ const handleBuyNowCheckout = async () => {
             <Button
               mode="contained"
               onPress={() => setShowQuoteDialog(true)}
-              style={styles.actionButton}
+              style={[styles.actionButton, ]}
               icon="handshake"
             >
               Request Quote
@@ -624,7 +624,7 @@ color: '#fff',
   },
   originalPrice: {
     textDecorationLine: 'line-through',
-    color: '#9ca3af',
+    color: '#fff',
     fontSize: 14,
     marginBottom: 4,
   },
@@ -633,7 +633,7 @@ color: '#fff',
   },
   unit: {
     marginLeft: 8,
-    color: '#6b7280',
+    color: '#fff',
   },
   negotiableChip: {
     alignSelf: 'flex-start',
@@ -646,7 +646,7 @@ color: '#fff',
     gap: 8,
   },
   inStock: {
-    color: '#10b981',
+    color: '#fff',
     fontWeight: '600',
   },
   outOfStock: {
@@ -665,7 +665,7 @@ color: '#fff',
   },
   description: {
     lineHeight: 24,
-    color: '#4b5563',
+    color: '#fff',
   },
   supplierRow: {
     flexDirection: 'row',
@@ -675,7 +675,7 @@ color: '#fff',
     flex: 1,
   },
   supplierText: {
-    color: '#4b5563',
+    color: '#fff',
     marginTop: 2,
   },
   supplierRowInline: {
@@ -696,7 +696,6 @@ color: '#fff',
     flexDirection: 'row',
     padding: 16,
     gap: 12,
-    backgroundColor: '#fff',
   },
   actionButton: {
     flex: 1,
