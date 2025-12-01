@@ -4,10 +4,15 @@ import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { LanguageProvider } from "../context/LanguageContext";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import * as SystemUI from "expo-system-ui";
 
 function RootLayoutInner() {
   const { theme, isDarkMode } = useTheme();
-
+ useEffect(() => {
+    // ensure system bars match app surface color
+    SystemUI.setBackgroundColorAsync(theme.colors.background);
+  }, []);
   return (
     <PaperProvider theme={theme}>
       <StatusBar style={isDarkMode ? "light" : "dark"} />

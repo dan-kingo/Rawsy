@@ -107,7 +107,7 @@ export default function RegisterScreen() {
           />
 
           <TextInput
-            label="Company Name"
+            label="Company Name *"
             value={companyName}
             onChangeText={setCompanyName}
             mode="outlined"
@@ -116,7 +116,7 @@ export default function RegisterScreen() {
           />
 
           <TextInput
-            label="Email (Optional)"
+            label="Email *"
             value={email}
             onChangeText={setEmail}
             mode="outlined"
