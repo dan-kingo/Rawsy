@@ -35,13 +35,19 @@ export const placeOrder = async (req: Request, res: Response) => {
     }
 
     const supplierId = product.supplier.toString();
-    const unitPrice = product.price;
+
+    // Calculate final price with discount
+    let unitPrice = product.price;
+    if (product.discount?.active && product.discount.percentage > 0) {
+      unitPrice = product.price - (product.price * product.discount.percentage) / 100;
+    }
+
     const subtotal = unitPrice * quantity;
     const availableMethods = product.paymentMethod || ["bank_transfer"];
-const finalPaymentMethod =
-  paymentMethod && availableMethods.includes(paymentMethod)
-    ? paymentMethod
-    : availableMethods[0];
+    const finalPaymentMethod =
+      paymentMethod && availableMethods.includes(paymentMethod)
+        ? paymentMethod
+        : availableMethods[0];
     const items = [
       {
         product: product._id,

@@ -232,7 +232,12 @@ export const checkoutCart = async (req: Request, res: Response) => {
           .json({ error: `Insufficient stock for product ${prod._id} or product not found` });
       }
 
-      const unitPrice = prod.discount?.active ? prod.finalPrice : prod.price;
+      // Calculate final price with discount
+      let unitPrice = prod.price;
+      if (prod.discount?.active && prod.discount.percentage > 0) {
+        unitPrice = prod.price - (prod.price * prod.discount.percentage) / 100;
+      }
+
       const subtotal = unitPrice * qty;
       total += subtotal;
       items.push({
@@ -332,8 +337,11 @@ export const checkoutDirect = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Stock update failed" });
     }
 
-    // build order
-const unitPrice = product.discount?.active ? product.finalPrice : product.price;
+    // build order - calculate final price with discount
+    let unitPrice = product.price;
+    if (product.discount?.active && product.discount.percentage > 0) {
+      unitPrice = product.price - (product.price * product.discount.percentage) / 100;
+    }
     const subtotal = unitPrice * quantity;
     const total = subtotal;
 
