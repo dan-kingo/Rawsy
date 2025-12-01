@@ -1,21 +1,26 @@
 import admin from "firebase-admin";
-import path from "path";
-import fs from "fs";
+import dotenv from "dotenv";
+dotenv.config();
 
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT;
+// Get the service account JSON from environment variable
+const serviceAccountJSON = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
 
-if (!serviceAccountPath) {
-  throw new Error("FIREBASE_SERVICE_ACCOUNT is missing in .env");
+if (!serviceAccountJSON) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON is missing in environment variables");
 }
 
-const absolutePath = path.resolve(serviceAccountPath);
-
-if (!fs.existsSync(absolutePath)) {
-  throw new Error("Service account JSON not found at: " + absolutePath);
+try {
+  // Parse the JSON string from environment variable
+  const serviceAccount = JSON.parse(serviceAccountJSON);
+  
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+  
+  console.log("Firebase Admin initialized successfully");
+} catch (error) {
+  console.error("Error initializing Firebase Admin:", error);
+  throw error;
 }
-
-admin.initializeApp({
-  credential: admin.credential.cert(absolutePath),
-});
 
 export const firebaseAdmin = admin;
