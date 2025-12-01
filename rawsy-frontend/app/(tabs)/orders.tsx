@@ -433,8 +433,8 @@ const handleCancelOrder = async (orderId: string) => {
                         Payment Status:
                       </Text>
                       <Chip
-                        style={{ backgroundColor: getPaymentStatusColor(order.paymentStatus), height: 24 }}
-                        textStyle={{ color: '#fff', fontSize: 10 }}
+                        style={{ backgroundColor: getPaymentStatusColor(order.paymentStatus), height: 34 }}
+                        textStyle={{ color: '#fff', fontSize: 14 }}
                       >
                         {order.paymentStatus}
                       </Chip>
@@ -445,7 +445,7 @@ const handleCancelOrder = async (orderId: string) => {
                     <Text variant="titleMedium">Total:</Text>
                     <Text
                       variant="headlineSmall"
-                      style={{ color: theme.colors.primary, fontWeight: 'bold' }}
+                      style={{ color: "#fff", fontWeight: 'bold' }}
                     >
                       {order.total} ETB
                     </Text>

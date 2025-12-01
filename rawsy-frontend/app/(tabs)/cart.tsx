@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function CartScreen() {
   const { theme } = useTheme();
@@ -146,6 +147,7 @@ export default function CartScreen() {
 
       {cart.length === 0 ? (
         <View style={styles.emptyContainer}>
+          <MaterialIcons name="shopping-cart" size={64} color={theme.colors.onBackground} />
           <Text variant="headlineSmall" style={styles.emptyText}>
             Your cart is empty
           </Text>
@@ -257,10 +259,10 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginBottom: 8,
-    color: '#666',
+    color: '#fff',
   },
   emptySubtext: {
-    color: '#999',
+    color: '#fff',
   },
   cartItem: {
     marginBottom: 12,

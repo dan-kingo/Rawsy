@@ -174,7 +174,7 @@ function ManufacturerProductsView() {
                   {product.discount?.active && (
                     <View style={styles.discountContainer}>
                       <Badge style={styles.discountBadge} size={32}>
-                        {`${product.discount.percentage}%`}
+                        {`Discount ${product.discount.percentage}%`}
                       </Badge>
                       {product.discount?.expiresAt && (
                         <Text style={styles.discountExpireText}>
@@ -191,6 +191,7 @@ function ManufacturerProductsView() {
                 </View>
 
                 <Card.Content style={styles.cardContentVertical}>
+                  
                   <View style={styles.productHeaderRow}>
                     <View style={styles.productTitleContainer}>
                       <Text variant="titleMedium" numberOfLines={2} style={styles.productName}>
@@ -203,7 +204,7 @@ function ManufacturerProductsView() {
                     {product.negotiable && (
                       <View style={styles.negotiableBadge}>
                         <MaterialIcons name="handshake" size={16} color={theme.colors.secondary} />
-                        <Text variant="bodySmall" style={[styles.negotiableText, { color: theme.colors.secondary }]}>
+                        <Text variant="bodySmall" style={[styles.negotiableText]}>
                           Negotiable
                         </Text>
                       </View>
@@ -228,12 +229,12 @@ function ManufacturerProductsView() {
                           <Text variant="bodySmall" style={styles.originalPrice}>
                             {product.price} ETB
                           </Text>
-                          <Text variant="titleLarge" style={[styles.price, { color: theme.colors.primary }]}>
+                          <Text variant="titleLarge" style={[styles.price, ]}>
                             {product.finalPrice?.toFixed(2)} ETB
                           </Text>
                         </View>
                       ) : (
-                        <Text variant="titleLarge" style={[styles.price, { color: theme.colors.primary }]}>
+                        <Text variant="titleLarge" style={[styles.price,]}>
                           {product.price} ETB
                         </Text>
                       )}
@@ -632,12 +633,12 @@ const styles = StyleSheet.create({
   },
   priceContainer: { flexDirection: 'row', alignItems: 'baseline', flex: 1 },
   discountPriceContainer: { flexDirection: 'column' },
-  originalPrice: { textDecorationLine: 'line-through', color: '#9ca3af', fontSize: 12 },
+  originalPrice: { textDecorationLine: 'line-through', color: '#b82941ff', fontSize: 12, },
   price: { fontWeight: 'bold', marginRight: 4 },
   unit: { fontSize: 12 },
   stockContainer: { alignItems: 'flex-end' },
   stockRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  inStock: { color: '#10b981' },
+inStock: { color: '#fff' },
   outOfStock: { color: '#ef4444' },
   
   // Discount styling
@@ -647,7 +648,13 @@ const styles = StyleSheet.create({
     right: 8,
     alignItems: 'center',
   },
-  discountBadge: { backgroundColor: '#ef4444' },
+  discountBadge: {  width: 164,
+    height: 38,
+    position: 'absolute',
+    top: 16,
+    color: '#fff',
+    right: 16,
+    backgroundColor: '#104617ff',},
   discountExpireText: {
     color: '#fff',
     fontSize: 10,
@@ -674,13 +681,15 @@ const styles = StyleSheet.create({
   negotiableBadge: { 
     flexDirection: 'row', 
     alignItems: 'center', 
-    backgroundColor: 'rgba(41, 128, 185, 0.1)',
+    backgroundColor: '#104617ff',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    color: "#fff",
+    paddingVertical: 8,
     borderRadius: 12,
+
     gap: 4 
   },
-  negotiableText: { fontSize: 11, fontWeight: '600' },
+  negotiableText: { fontSize: 14, fontWeight: '600', color: "#fff", },
   
   // Footer
   footer: { padding: 16, paddingTop: 8, paddingBottom: 24 },

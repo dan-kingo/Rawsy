@@ -146,7 +146,7 @@ export default function WishlistScreen() {
             {wishlist.map((product: any) => (
               <Card
                 key={product._id}
-                style={[styles.productCard, { width: cardWidth }]}
+                style={[styles.productCardFullWidth, { backgroundColor: theme.colors.surface }]}
                 onPress={() => router.push({ pathname: '/product/[id]', params: { id: product._id } })}
               >
                 <View style={styles.imageContainer}>
@@ -197,12 +197,12 @@ export default function WishlistScreen() {
                         <Text variant="bodySmall" style={styles.originalPrice}>
                           {product.price} ETB
                         </Text>
-                        <Text variant="titleLarge" style={[styles.price, { color: theme.colors.primary }]}>
+                        <Text variant="titleLarge" style={[styles.price, { color: "#fff" }]}>
                           {product.finalPrice?.toFixed(2)} ETB
                         </Text>
                       </View>
                     ) : (
-                      <Text variant="titleLarge" style={[styles.price, { color: theme.colors.primary }]}>
+                      <Text variant="titleLarge" style={[styles.price, { color:"#fff" }]}>
                         {product.price} ETB
                       </Text>
                     )}
@@ -268,15 +268,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   productGrid: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     flexWrap: 'wrap',
     padding: 16,
     gap: 16,
     justifyContent: 'space-between',
   },
   productCard: { marginBottom: 8 },
+  productCardFullWidth: { width: width - 32, marginBottom: 12, borderRadius: 8, overflow: 'hidden' },
   imageContainer: { position: 'relative' },
-  cardImage: { height: 150 },
+  cardImage: { height: 268 },
   removeButton: {
     position: 'absolute',
     top: 4,
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
   },
   price: { fontWeight: 'bold' },
   stockRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 4 },
-  inStock: { color: '#10b981' },
+  inStock: { color: '#fff' },
   outOfStock: { color: '#ef4444' },
   addButton: { marginTop: 4 },
 });

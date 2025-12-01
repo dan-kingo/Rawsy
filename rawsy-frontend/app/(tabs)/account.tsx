@@ -74,7 +74,7 @@ export default function AccountScreen() {
               style={[
                 styles.userStatus,
                 {
-                  color:
+                  backgroundColor:
                     user.status === 'approved' || user.status === 'active'
                       ? '#10b981'
                       : user.status === 'pending'
@@ -248,11 +248,16 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   userRole: {
-    color: '#666',
+    color: '#fff',
     marginBottom: 8,
   },
   userStatus: {
     fontWeight: '600',
+    color: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 14
   },
   logoutSection: {
     padding: 16,

@@ -146,7 +146,7 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
               {homeData.popularMaterials.map((product: any, index: number) => (
                 <Card
                   key={index}
-                  style={[styles.productCard, { backgroundColor: theme.colors.surface }]}
+                  style={[styles.productCardFullWidth, { backgroundColor: theme.colors.surface }]}
                   onPress={() => router.push({ pathname: '/product/[id]', params: { id: product._id } })}
                 >
                   <Card.Cover
@@ -157,7 +157,7 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
                     <Text variant="titleSmall" numberOfLines={1} style={styles.productName}>
                       {product.name}
                     </Text>
-                    <Text variant="bodyMedium" style={[styles.productPrice, { color: theme.colors.primary }]}>
+                    <Text variant="bodyMedium" style={[styles.productPrice, { color: "#fff" }]}>
                       {product.price} ETB/{product.unit}
                     </Text>
                     {product.rating?.average > 0 && (
@@ -306,10 +306,10 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
                       </Text>
                     </View>
                     <View style={styles.orderRight}>
-                      <Text variant="titleMedium" style={[styles.orderTotal, { color: theme.colors.primary }]}>
+                      <Text variant="titleMedium" style={[styles.orderTotal, { color: "#fff" }]}>
                         {order.total} ETB
                       </Text>
-                      <Chip style={styles.statusChip} textStyle={{ fontSize: 11 }}>
+                      <Chip style={styles.statusChip} textStyle={{ fontSize: 14 }}>
                         {order.status}
                       </Chip>
                     </View>
@@ -610,9 +610,10 @@ const styles = StyleSheet.create({
   actionLabel: { textAlign: "center", marginTop: 4, fontWeight: '500' },
   welcomeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   welcomeTextContainer: { flex: 1, marginRight: 12 },
-  horizontalScroll: { marginTop: 8 },
+  horizontalScroll: { marginTop: 8,},
   productCard: { width: 150, marginRight: 12 },
-  productImage: { height: 120 },
+  productCardFullWidth: { width: width - 32, height: 364, marginRight: 12, overflow: 'hidden' },
+  productImage: { height: 268, borderBottomRightRadius: 0, borderBottomLeftRadius: 0 },
   productContent: { paddingTop: 8 },
   productName: { fontWeight: '600', marginBottom: 4 },
   productPrice: { fontWeight: 'bold', marginBottom: 4 },
