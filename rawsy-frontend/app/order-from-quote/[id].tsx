@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Appbar, Text, Button, RadioButton, Divider, Surface, ActivityIndicator } from 'react-native-paper';
+import { Appbar, Text, Button, Divider, Surface, ActivityIndicator } from 'react-native-paper';
 import { useTheme } from '../../context/ThemeContext';
 import api from '../../services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -13,7 +13,7 @@ export default function OrderFromQuoteScreen() {
 
   const [quote, setQuote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
+  const [paymentMethod] = useState('cash_on_delivery');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -120,15 +120,7 @@ export default function OrderFromQuoteScreen() {
 
         <View style={styles.paymentSection}>
           <Text variant="titleMedium" style={styles.sectionTitle}>Payment Method</Text>
-          <RadioButton.Group onValueChange={setPaymentMethod} value={paymentMethod}>
-            <View style={styles.radioOption}>
-              <RadioButton.Android value="cash_on_delivery" />
-              <View style={{ marginLeft: 8 }}>
-                <Text>Cash on Delivery</Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>Pay when you receive the goods</Text>
-              </View>
-            </View>
-          </RadioButton.Group>
+          <Text variant="bodyMedium">Cash on Delivery — pay when you receive the goods.</Text>
         </View>
 
         <View style={{ padding: 16 }}>

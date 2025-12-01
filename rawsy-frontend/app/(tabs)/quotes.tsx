@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Alert } from 'react-native';
 import {
   Text,
   Appbar,
@@ -16,7 +16,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../../services/api';
 import SupplierQuoteResponseDialog from '../../components/SupplierQuoteResponseDialog';
 import OrderFromQuoteDialog from '../../components/OrderFromQuoteDialog';
-import PaymentUploadDialog from '../../components/PaymentUploadDialog';
 
 export default function QuotesScreen() {
   const { theme } = useTheme();
@@ -29,8 +28,6 @@ export default function QuotesScreen() {
   const [selectedQuote, setSelectedQuote] = useState<any>(null);
   const [showResponseDialog, setShowResponseDialog] = useState(false);
   const [showOrderDialog, setShowOrderDialog] = useState(false);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
   const params = useLocalSearchParams();
 
   useEffect(() => {
@@ -40,8 +37,9 @@ export default function QuotesScreen() {
   useEffect(() => {
     const id = (params as any).createdOrderId as string | undefined;
     if (id) {
-      setCreatedOrderId(id);
-      // remove the param by replacing route without query
+      // an order was just created — refresh list and clear the param
+      fetchQuotes();
+      Alert.alert('Order placed', 'Your order was created successfully');
       router.replace('/(tabs)/quotes');
     }
   }, [params.createdOrderId]);
@@ -85,8 +83,9 @@ export default function QuotesScreen() {
   };
 
   const handleOrderSuccess = (orderId: string) => {
-    setCreatedOrderId(orderId);
-    setShowPaymentDialog(true);
+    // keep behavior simple: refresh list after an order is created
+    fetchQuotes();
+    Alert.alert('Order placed', 'Your order was created successfully');
   };
 
   const getStatusColor = (status: string) => {
@@ -325,22 +324,7 @@ export default function QuotesScreen() {
         </>
       )}
 
-      {createdOrderId && (
-        <PaymentUploadDialog
-          visible={showPaymentDialog}
-          onDismiss={() => {
-            setShowPaymentDialog(false);
-            setCreatedOrderId(null);
-            fetchQuotes();
-          }}
-          orderId={createdOrderId}
-          onSuccess={() => {
-            setShowPaymentDialog(false);
-            setCreatedOrderId(null);
-            fetchQuotes();
-          }}
-        />
-      )}
+      {/* payment upload removed — using cash-on-delivery only */}
     </View>
   );
 }

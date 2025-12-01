@@ -58,16 +58,8 @@ export default function CheckoutScreen() {
     try {
       setProcessing(true);
 
-      const formData = new FormData();
-      formData.append('paymentMethod', paymentMethod);
-
-      await api.post(
-        '/cart/checkout',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      );
+      // Payment is cash-on-delivery only — send JSON payload
+      await api.post('/cart/checkout', { paymentMethod });
 
       Alert.alert('Success', 'Order placed successfully!', [
         { text: 'OK', onPress: () => router.back() }

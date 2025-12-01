@@ -250,7 +250,7 @@ const handleBuyNowCheckout = async () => {
       </Appbar.Header>
 
       <ScrollView ref={scrollRef} style={styles.content}>
-        <View style={styles.imageSection}>
+        <View>
           <View style={styles.mainImageContainer}>
             <Card.Cover
               source={{ uri: images[selectedImage] }}
@@ -523,9 +523,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  imageSection: {
-    backgroundColor: '#fff',
-  },
+  
   mainImageContainer: {
     position: 'relative',
     width: width,
