@@ -54,7 +54,7 @@ export default function SupplierReviewsScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={t('reviews')} />
+        <Appbar.Content title={t('Reviews')} />
       </Appbar.Header>
 
       <ScrollView
@@ -64,12 +64,40 @@ export default function SupplierReviewsScreen() {
         }
       >
         {reviewSummary && (
-          <Surface style={styles.summarySection} elevation={1}>
+          <Surface style={styles.summarySection} elevation={2}>
             <Text variant="titleMedium" style={styles.summaryTitle}>
               {t('ratingSummary')}
             </Text>
-            <Text>Average Rating: {reviewSummary.averageRating?.toFixed(1) || 'N/A'}</Text>
-            <Text>Total Reviews: {reviewSummary.totalReviews || 0}</Text>
+
+            <View style={styles.summaryRow}>
+              <Surface style={styles.metricCard} elevation={2}>
+                <View style={styles.metricInner}>
+                  <Avatar.Icon
+                    size={48}
+                    icon="star"
+                    style={[styles.metricIcon, { backgroundColor: theme.colors.primary }]}
+                  />
+                  <View style={styles.metricTextWrap}>
+                    <Text style={[styles.metricValue, { color: theme.colors.onSurface }]}>{reviewSummary.averageRating ? reviewSummary.averageRating.toFixed(1) : '0'}</Text>
+                    <Text style={[styles.metricLabel, { color: theme.colors.onSurface, opacity: 0.7 }]}>{t('averageRating') || 'Average Rating'}</Text>
+                  </View>
+                </View>
+              </Surface>
+
+              <Surface style={[styles.metricCard, styles.metricCardSpacing]} elevation={2}>
+                <View style={styles.metricInner}>
+                  <Avatar.Icon
+                    size={48}
+                    icon="account-group"
+                    style={[styles.metricIcon, { backgroundColor: theme.colors.secondary }]}
+                  />
+                  <View style={styles.metricTextWrap}>
+                    <Text style={[styles.metricValue, { color: theme.colors.onSurface }]}>{reviewSummary.totalReviews || 0}</Text>
+                    <Text style={[styles.metricLabel, { color: theme.colors.onSurface, opacity: 0.7 }]}>{t('totalReviews') || 'Total Reviews'}</Text>
+                  </View>
+                </View>
+              </Surface>
+            </View>
           </Surface>
         )}
 
@@ -119,4 +147,38 @@ const styles = StyleSheet.create({
   reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   reviewText: { marginLeft: 52 }, // to align with avatar
   noReviews: { textAlign: 'center', marginTop: 32, fontSize: 16, color: '#666' },
+  summaryRow: {
+    flexDirection: 'column',
+    marginTop: 12,
+    width: '100%',
+  },
+  metricCard: {
+    width: '100%',
+    borderRadius: 12,
+    padding: 12,
+    justifyContent: 'center',
+  },
+  metricInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metricIcon: {
+    elevation: 0,
+  },
+  metricTextWrap: {
+    marginLeft: 12,
+  },
+  metricValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  metricLabel: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  metricCardSpacing: {
+    marginTop: 12,
+  },
 });

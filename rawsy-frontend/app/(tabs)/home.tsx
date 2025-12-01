@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
   alertHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   alertTitle: { fontWeight: '600' },
   statsCard: { margin: 16, padding: 16, borderRadius: 12 },
-  statsGrid: { flexDirection: 'row', gap: 12 },
+  statsGrid: { flexDirection: 'column', gap: 12 },
   statBox: { alignItems: 'center', flex: 1 },
    avatar: {
     marginBottom: 16,

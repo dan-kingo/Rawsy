@@ -336,7 +336,7 @@ if (selectedPaymentMethods.length === 0) {
           </View>
         </ScrollView>
 
-        <Surface style={styles.footer} elevation={4}>
+        <Surface style={[styles.footer, { backgroundColor: theme.colors.background }]} elevation={4}>
           <Button mode="outlined" onPress={() => router.back()} style={styles.footerButton} disabled={loading}>
             Cancel
           </Button>
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   },
   infoBox: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#3a74e9ff',
     padding: 12,
     borderRadius: 8,
     margin: 16,
@@ -449,8 +449,8 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     padding: 16,
+    marginBottom: 48,
     gap: 12,
-    backgroundColor: '#fff',
   },
   footerButton: {
     flex: 1,

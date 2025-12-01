@@ -3,8 +3,8 @@ import { View, FlatList, StyleSheet, RefreshControl, ScrollView } from 'react-na
 import { Appbar, List, Surface, ActivityIndicator, Text, Badge, Button, Chip } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
-
-const BASE_URL = 'http://10.184.150.42:4000';
+import { useTheme } from '../context/ThemeContext';
+const BASE_URL = 'http://192.168.1.8:4000';
 
 type NotificationType = 'all' | 'order' | 'quote' | 'maintenance';
 
@@ -17,6 +17,7 @@ export default function NotificationsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<NotificationType>('all');
 
+  const { theme } = useTheme();
   const fetchNotifications = async () => {
     try {
       setLoading(true);
@@ -105,11 +106,10 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header 
         elevated 
-        style={styles.header}
-        mode="center-aligned"
+       
       >
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content 
@@ -131,7 +131,7 @@ export default function NotificationsScreen() {
       </Appbar.Header>
 
       {/* Filter Chips - Fixed to stay at top */}
-      <View style={styles.filterSection}>
+      <View style={[styles.filterSection, { backgroundColor: theme.colors.background }]}>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
@@ -258,24 +258,24 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F8FAFC' 
+    
   },
   header: {
-    backgroundColor: '#FFFFFF',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
+    color: '#FFFFFF',
     shadowRadius: 8,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1F2937',
+    color: "#fff",
   },
   headerActions: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   headerBadge: { 
     backgroundColor: '#EF4444', 
@@ -285,7 +285,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   filterSection: {
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
     maxHeight: 60, // Fixed height for filter section
@@ -342,12 +341,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#fff',
     textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#fff',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -359,6 +358,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 8, // Reduced top padding to bring notifications closer to filters
     paddingBottom: 24,
+    color: "#fff"
   },
   card: {
     marginVertical: 4, // Reduced vertical margin
