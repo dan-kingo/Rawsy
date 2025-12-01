@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Text, TextInput, Button, HelperText } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -40,6 +41,12 @@ export default function LoginScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
+        </TouchableOpacity>
         <View style={styles.header}>
           <Text variant="displaySmall" style={styles.title}>
             Welcome Back
@@ -93,7 +100,7 @@ export default function LoginScreen() {
 
           <Button
             mode="text"
-            onPress={() => router.push('/(auth)/register')}
+            onPress={() => router.replace('/register')}
             style={styles.linkButton}
           >
             {"Don't have an account? Sign Up"}
@@ -113,6 +120,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    zIndex: 10,
+    padding: 8,
   },
   header: {
     alignItems: 'center',
