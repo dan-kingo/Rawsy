@@ -4,7 +4,7 @@ import { Appbar, List, Surface, ActivityIndicator, Text, Badge, Button, Chip } f
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-const BASE_URL = 'http://192.168.1.8:4000';
+const BASE_URL = 'http://10.224.105.216:4000';
 
 type NotificationType = 'all' | 'order' | 'quote' | 'maintenance';
 

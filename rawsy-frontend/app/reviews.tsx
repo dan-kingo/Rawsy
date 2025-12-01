@@ -65,9 +65,9 @@ export default function SupplierReviewsScreen() {
       >
         {reviewSummary && (
           <Surface style={styles.summarySection} elevation={2}>
-            <Text variant="titleMedium" style={styles.summaryTitle}>
-              {t('ratingSummary')}
-            </Text>
+            {/* <Text variant="titleMedium" style={styles.summaryTitle}>
+              {t('Rating Summary')}
+            </Text> */}
 
             <View style={styles.summaryRow}>
               <Surface style={styles.metricCard} elevation={2}>
@@ -106,7 +106,7 @@ export default function SupplierReviewsScreen() {
         {loading ? (
           <ActivityIndicator animating size="large" />
         ) : reviews.length === 0 ? (
-          <Text style={styles.noReviews}>{t('noReviewsYet')}</Text>
+          <Text style={styles.noReviews}>{t('no Reviews Yet')}</Text>
         ) : (
           reviews.map((review) => (
             <Surface key={review._id} style={styles.reviewItem} elevation={1}>
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   reviewText: { marginLeft: 52 }, // to align with avatar
-  noReviews: { textAlign: 'center', marginTop: 32, fontSize: 16, color: '#666' },
+  noReviews: { textAlign: 'center', marginTop: 32, fontSize: 16, color: '#fff' },
   summaryRow: {
     flexDirection: 'column',
     marginTop: 12,
