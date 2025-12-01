@@ -42,3 +42,36 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
+
+export const optionalAuthenticate = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = (req.headers.authorization || req.headers.Authorization) as string | undefined;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const found = await RevokedToken.findOne({ token });
+    if (found) {
+      return next();
+    }
+
+    const payload = jwt.verify(token, JWT_SECRET) as any;
+
+    const user = await User.findById(payload.id).select("-password");
+    if (user) {
+      (req as any).user = {
+        id: user._id.toString(),
+        role: user.role,
+        email: user.email,
+        status: user.status
+      };
+    }
+
+    return next();
+  } catch (err: any) {
+    return next();
+  }
+};

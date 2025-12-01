@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticate } from "../../middlewares/auth.middleware";
+import { authenticate, optionalAuthenticate } from "../../middlewares/auth.middleware";
 import { requireApprovedSupplier } from "../../middlewares/supplier.middleware";
 import { createProduct,
   getAllProducts,
@@ -23,7 +23,7 @@ router.get("/mine", authenticate, requireApprovedSupplier, getMyProducts);
 router.get("/search/filter", searchProducts);
 router.get("/top-rated", getTopRatedProducts);
 router.get("/", getAllProducts);
-router.get("/:id", getProductById);
+router.get("/:id", optionalAuthenticate, getProductById);
 // Protected route example: create product (supplier only)
 router.post("/", authenticate, requireApprovedSupplier, createProduct);
 router.put("/discount/add", authenticate, requireApprovedSupplier, applyDiscount);

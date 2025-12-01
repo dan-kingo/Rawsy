@@ -81,12 +81,12 @@ export const getProductById = async (req: Request, res: Response) => {
     const id = req.params.id;
     const user = (req as any).user;
     const product = await Product.findById(id)
-      .populate("supplier", "name companyName phone averageRating verifiedSupplier");
+      .populate("supplier", "name companyName phone averageRating verifiedSupplier profileImage");
 
     if (!product) return res.status(404).json({ error: "Product not found" });
 
     // Allow supplier to view their own products regardless of status
-    const isOwner = user && product.supplier._id.toString() === user.id;
+    const isOwner = user && product.supplier && product.supplier._id.toString() === user.id;
 
     // only show approved for public users
     if (product.status !== "approved" && !isOwner) {
@@ -138,7 +138,7 @@ export const getMyProducts = async (req: Request, res: Response) => {
  * ================================
  *   UPDATE PRODUCT (Supplier Only)
  * ================================
- *  ❗ After update → product becomes pending again
+ *  ❗ If product was approved, it stays approved after update
  */
 export const updateProduct = async (req: Request, res: Response) => {
   try {
@@ -158,8 +158,12 @@ export const updateProduct = async (req: Request, res: Response) => {
       if (req.body[key] !== undefined) data[key] = req.body[key];
     }
 
-    // when supplier updates → admin must approve again
-    data.status = "pending";
+    // Keep approved status if product was already approved
+    if (oldProduct.status === "approved") {
+      data.status = "approved";
+    } else {
+      data.status = "pending";
+    }
     data.rejectionReason = null;
 
     const updated = await Product.findByIdAndUpdate(productId, data, { new: true }).lean();
@@ -182,8 +186,12 @@ export const updateProduct = async (req: Request, res: Response) => {
       console.warn("Wishlist notification failed:", notifyErr);
     }
 
+    const message = oldProduct.status === "approved"
+      ? "Product updated successfully"
+      : "Product updated, waiting for admin review";
+
     return res.json({
-      message: "Product updated, waiting for admin review",
+      message,
       product: updated
     });
 
