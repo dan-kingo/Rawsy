@@ -1,4 +1,4 @@
-import { View, StyleSheet, ScrollView, RefreshControl, Dimensions, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, RefreshControl, Dimensions, Alert, TouchableOpacity } from 'react-native';
 import { Text, Appbar, Card, Searchbar, Chip, ActivityIndicator, Badge, FAB, Button, Surface, Divider } from 'react-native-paper';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -160,11 +160,12 @@ function ManufacturerProductsView() {
         ) : (
           <View style={styles.productList}>
             {filteredProducts.map((product) => (
-              <Card
+              <TouchableOpacity
                 key={product._id}
-                style={styles.productCardVertical}
+                activeOpacity={0.9}
                 onPress={() => router.push({ pathname: '/product/[id]', params: { id: product._id } })}
               >
+                <Card style={styles.productCardVertical}>
                 <View style={styles.imageContainerVertical}>
                   <Card.Cover
                     source={{ uri: product.image || product.images?.[0] || 'https://via.placeholder.com/400x200' }}
@@ -260,7 +261,9 @@ function ManufacturerProductsView() {
                     </View>
                   </View>
                 </Card.Content>
-              </Card>
+                </Card>
+              </TouchableOpacity>
+
             ))}
           </View>
         )}
@@ -447,7 +450,12 @@ function SupplierProductsView() {
         ) : (
           <View style={styles.productList}>
             {filteredProducts.map((product) => (
-              <Card key={product._id} style={styles.supplierProductCardVertical}>
+              <TouchableOpacity
+                key={product._id}
+                activeOpacity={0.9}
+                onPress={() => router.push({ pathname: '/product/[id]', params: { id: product._id } })}
+              >
+                <Card style={styles.supplierProductCardVertical}>
                 <View style={styles.imageContainerVertical}>
                   <Card.Cover
                     source={{ uri: product.image || product.images?.[0] || 'https://via.placeholder.com/400x200' }}
@@ -558,7 +566,8 @@ function SupplierProductsView() {
                     </Button>
                   </View>
                 </Card.Content>
-              </Card>
+                </Card>
+              </TouchableOpacity>
             ))}
           </View>
         )}
