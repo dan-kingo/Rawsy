@@ -26,10 +26,10 @@ export const createProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const allowedMethods = ["bank_transfer", "cash", "mobile_money"];
+    const allowedMethods = ["cash_on_delivery"];
 
     // If supplier provided payment methods, validate them
-    let finalPaymentMethods = ["bank_transfer"];
+    let finalPaymentMethods = ["cash_on_delivery"];
 
     if (Array.isArray(paymentMethods) && paymentMethods.length > 0) {
       const invalid = paymentMethods.filter(m => !allowedMethods.includes(m));

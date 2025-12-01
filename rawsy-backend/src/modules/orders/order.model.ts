@@ -27,8 +27,8 @@ const OrderSchema = new Schema(
     // Payment & delivery
     paymentMethod: {
       type: String,
-      enum: ["bank_transfer", "cash_on_delivery", ],
-      default: "bank_transfer"
+      enum: ["cash_on_delivery"],
+      default: "cash_on_delivery"
     },
     paymentStatus: {
       type: String,

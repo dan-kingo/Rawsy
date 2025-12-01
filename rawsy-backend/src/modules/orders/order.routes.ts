@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { requireApprovedSupplier } from "../../middlewares/supplier.middleware";
-import { placeOrder, 
-    acceptOrder, 
-    rejectOrder, 
-    markOrderShipped, 
-    markOrderDelivered, 
-    getMyOrders, 
-    getSupplierOrders, 
-    getAllOrdersAdmin, 
+import { placeOrder,
+    acceptOrder,
+    rejectOrder,
+    markOrderShipped,
+    markOrderDelivered,
+    getMyOrders,
+    getSupplierOrders,
+    getAllOrdersAdmin,
     filterOrdersAdmin,
     cancelOrder,
     downloadBuyerInvoice,
@@ -19,9 +19,6 @@ import { placeOrder,
   getOrderTracking,
   getTrackingList,
   getOrderTrackingDetails,
-  uploadPaymentProof,
-  approvePayment,
-  rejectPayment,
   getBuyerInvoiceUrl,
   getSupplierInvoiceUrl } from "./order.controller";
 import { requireAdmin } from "../../middlewares/admin.middleware";
@@ -29,7 +26,6 @@ import { requireRole } from "../../middlewares/roles.middleware";
 import { blockSuspendedUsers } from "../../middlewares/blockSuspended.middleware";
 import { getOrderAnalytics } from "./admin.order.analytics";
 import { getInvoiceSummary, getMyInvoices, getSupplierInvoices, getAllInvoicesAdmin } from "./order.invoice.summary";
-import { uploadSingle } from "../../middlewares/upload.middleware";
 const router = Router();
 
 // Supplier accepts order
@@ -64,7 +60,6 @@ router.post(
   requireRole("manufacturer"),
   placeOrder
 );
-router.post("/:id/upload-proof", authenticate, uploadSingle, uploadPaymentProof);
 router.get("/:id/activity-logs", authenticate, getOrderActivityLogs);
 router.get("/:id/status", authenticate, getOrderStatus);
 router.get("/admin/analytics", authenticate, requireAdmin, getOrderAnalytics);
@@ -89,7 +84,5 @@ router.get(
   getTrackingList
 );
 router.get("/tracking/details/:orderId", authenticate, getOrderTrackingDetails);
-router.put("/:id/approve-payment", authenticate, approvePayment);
-router.put("/:id/reject-payment", authenticate, rejectPayment);
 
 export default router;

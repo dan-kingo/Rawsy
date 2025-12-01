@@ -13,7 +13,7 @@ export default function OrderFromQuoteScreen() {
 
   const [quote, setQuote] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -121,13 +121,6 @@ export default function OrderFromQuoteScreen() {
         <View style={styles.paymentSection}>
           <Text variant="titleMedium" style={styles.sectionTitle}>Payment Method</Text>
           <RadioButton.Group onValueChange={setPaymentMethod} value={paymentMethod}>
-            <View style={styles.radioOption}>
-              <RadioButton.Android value="bank_transfer" />
-              <View style={{ marginLeft: 8 }}>
-                <Text>Bank Transfer</Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>Upload payment proof after placing order</Text>
-              </View>
-            </View>
             <View style={styles.radioOption}>
               <RadioButton.Android value="cash_on_delivery" />
               <View style={{ marginLeft: 8 }}>

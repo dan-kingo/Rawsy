@@ -35,8 +35,8 @@ const ProductSchema = new Schema(
     },
     paymentMethod: {
   type: [String],
-  enum: ["bank_transfer", "cash on delivery"],
-  default: ["bank_transfer"]
+  enum: ["cash_on_delivery"],
+  default: ["cash_on_delivery"]
 },
     rejectionReason: { type: String, default: null },
 

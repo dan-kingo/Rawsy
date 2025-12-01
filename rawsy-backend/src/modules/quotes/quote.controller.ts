@@ -293,7 +293,7 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
   try {
     const buyer = (req as any).user;
     const { id } = req.params;
-    const { paymentMethod, delivery } = req.body;
+    const { delivery } = req.body;
 
     const quote = await QuoteRequest.findById(id).populate("product").populate("supplier");
     if (!quote) return res.status(404).json({ error: "Quote not found" });
@@ -328,8 +328,8 @@ export const convertQuoteToOrder = async (req: Request, res: Response) => {
     const subtotal = finalPrice * quantityToOrder;
 
     const buyerData: any = await User.findById(buyer.id);
-    const finalPaymentMethod = paymentMethod || "bank_transfer";
-    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
+    const finalPaymentMethod = "cash_on_delivery";
+    const paymentStatus = "pending";
 
     const order = await Order.create({
       buyer: buyer.id,

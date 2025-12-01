@@ -49,7 +49,7 @@ const AboutScreen: React.FC = () => {
           <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Verified Supplier Network - Access to pre-screened and authenticated raw material suppliers</Text>
           <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Quote Management System - Request, negotiate, and manage custom quotes seamlessly</Text>
           <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Order Tracking - Real-time visibility into your order status from placement to delivery</Text>
-          <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Secure Payment Processing - Multiple payment methods with transaction security and proof management</Text>
+          <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Secure Payment Processing - Cash on delivery with transaction security</Text>
           <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Product Catalog - Comprehensive listings of raw materials with detailed specifications</Text>
           <Text style={[styles.listItem, { color: paperTheme.colors.onSurfaceVariant }]}>• Multi-Language Support - Available in English, Amharic, and Afaan Oromo for local accessibility</Text>
         </Surface>

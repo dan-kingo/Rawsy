@@ -152,8 +152,7 @@ export const clearCart = async (req: Request, res: Response) => {
 export const checkoutCart = async (req: Request, res: Response) => {
   try {
     const user = (req as any).user;
-    const { paymentMethod, delivery } = req.body;
-    const paymentProofFile = (req as any).file;
+    const { delivery } = req.body;
 
     // load user with cart populated
     const userData = await User.findById(user.id).populate("cart.product");
@@ -188,25 +187,12 @@ export const checkoutCart = async (req: Request, res: Response) => {
 
     // Determine supplier (single-supplier cart)
     const firstProduct: any = userData.cart[0].product;
-    const availableMethods =
-      firstProduct.paymentMethod && firstProduct.paymentMethod.length > 0
-        ? firstProduct.paymentMethod
-        : ["bank_transfer"];
-
-    const finalPaymentMethod =
-      paymentMethod && availableMethods.includes(paymentMethod)
-        ? paymentMethod
-        : availableMethods[0];
+    const finalPaymentMethod = "cash_on_delivery";
     if (!firstProduct || !firstProduct.supplier) {
       return res.status(500).json({ error: "Invalid product in cart" });
     }
     const supplierId = firstProduct.supplier.toString();
 
-    // Handle payment proof upload for bank transfer
-    let paymentProofUrl = null;
-    if (finalPaymentMethod === 'bank_transfer' && paymentProofFile) {
-      paymentProofUrl = paymentProofFile.path;
-    }
 
     // Build items and check stock for each product atomically
     const items: any[] = [];
@@ -252,9 +238,6 @@ export const checkoutCart = async (req: Request, res: Response) => {
 
     // Determine initial payment status
     let initialPaymentStatus = "pending";
-    if (finalPaymentMethod === 'bank_transfer' && paymentProofUrl) {
-      initialPaymentStatus = "pending_review";
-    }
 
     // create order
     const order = await Order.create({
@@ -264,7 +247,6 @@ export const checkoutCart = async (req: Request, res: Response) => {
       total,
       paymentMethod: finalPaymentMethod,
       paymentStatus: initialPaymentStatus,
-      paymentProof: paymentProofUrl,
       delivery: deliveryInfo, // can be null if no delivery required
       status: "placed",
       stockReserved: true,
@@ -315,16 +297,7 @@ export const checkoutDirect = async (req: Request, res: Response) => {
       }
     }
 
-    // payment methods
-    const availableMethods =
-      product.paymentMethod && product.paymentMethod.length > 0
-        ? product.paymentMethod
-        : ["bank_transfer"];
-
-    const finalPaymentMethod =
-      paymentMethod && availableMethods.includes(paymentMethod)
-        ? paymentMethod
-        : availableMethods[0];
+    const finalPaymentMethod = "cash_on_delivery";
 
     // reduce stock atomically
     const updated = await Product.findOneAndUpdate(
@@ -345,7 +318,7 @@ export const checkoutDirect = async (req: Request, res: Response) => {
     const subtotal = unitPrice * quantity;
     const total = subtotal;
 
-    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
+    const paymentStatus = "pending";
 
     const order = await Order.create({
       buyer: user.id,

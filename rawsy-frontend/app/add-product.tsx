@@ -30,8 +30,7 @@ const CATEGORIES = [
 
 const UNITS = ['kg', 'ton', 'meter', 'yard', 'piece', 'roll'];
 const PAYMENT_METHODS = [
-  { label: 'Bank Transfer', value: 'bank_transfer' },
-  { label: 'cash on delivery', value: 'cash' },
+  { label: 'Cash on Delivery', value: 'cash_on_delivery' },
 ];
 export default function AddProductScreen() {
   const { theme } = useTheme();
@@ -45,15 +44,10 @@ export default function AddProductScreen() {
   const [stock, setStock] = useState('');
   const [negotiable, setNegotiable] = useState(false);
   const [images, setImages] = useState<string[]>([]);
-  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>(['bank_transfer']);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<string[]>(['cash_on_delivery']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 // Add this inside your component
-const togglePaymentMethod = (method: string) => {
-  setSelectedPaymentMethods((prev) =>
-    prev.includes(method) ? prev.filter((m) => m !== method) : [...prev, method]
-  );
-};
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -97,10 +91,6 @@ const togglePaymentMethod = (method: string) => {
 
     if (isNaN(stockNum) || stockNum < 0) {
       setError('Please enter a valid stock quantity');
-      return;
-    }
-if (selectedPaymentMethods.length === 0) {
-      setError('Select at least one payment method');
       return;
     }
     try {
@@ -260,21 +250,6 @@ if (selectedPaymentMethods.length === 0) {
                 </Text>
               </View>
               <Switch value={negotiable} onValueChange={setNegotiable} />
-            </View>
-          </Surface>
-          <Surface style={[styles.section, { backgroundColor: theme.colors.surface }]} elevation={1}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>Payment Methods *</Text>
-            <View style={styles.categoryGrid}>
-              {PAYMENT_METHODS.map((method) => (
-                <Chip
-                  key={method.value}
-                  selected={selectedPaymentMethods.includes(method.value)}
-                  onPress={() => togglePaymentMethod(method.value)}
-                  style={styles.categoryChip}
-                >
-                  {method.label}
-                </Chip>
-              ))}
             </View>
           </Surface>
           <Surface style={[styles.section, { backgroundColor: theme.colors.surface }]} elevation={1}>

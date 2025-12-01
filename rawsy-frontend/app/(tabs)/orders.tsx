@@ -18,7 +18,6 @@ import { useState, useEffect,useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../../services/api';
-import PaymentUploadDialog from '../../components/PaymentUploadDialog';
 import PaymentProofViewer from '../../components/PaymentProofViewer';
  import { useFocusEffect } from '@react-navigation/native';
 
@@ -31,8 +30,6 @@ export default function OrdersScreen() {
   const [filteredOrders, setFilteredOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [filterMenuVisible, setFilterMenuVisible] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -224,10 +221,6 @@ const handleCancelOrder = async (orderId: string) => {
     setRefreshing(false);
   };
 
-  const handleUploadPayment = (orderId: string) => {
-    setSelectedOrderId(orderId);
-    setShowPaymentDialog(true);
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -460,48 +453,7 @@ const handleCancelOrder = async (orderId: string) => {
                   </View>
 
                   {(() => {
-                    const showUpload = user?.role === 'manufacturer' && order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'pending' &&  order.status === 'confirmed';
                     const showCancel = user?.role === 'manufacturer' && String(order.status || '').trim().toLowerCase() === 'placed';
-
-                    if (showUpload && showCancel) {
-                      return (
-                        <View style={styles.actionRow}>
-                          <Button
-                            mode="contained"
-                            onPress={() => handleUploadPayment(order._id)}
-                            style={[styles.actionBtnHalf, { marginRight: 8 }]}
-                            icon="upload"
-                          >
-                            Upload Proof
-                          </Button>
-
-                          <Button
-                            mode="contained"
-                            onPress={() => handleCancelOrder(order._id)}
-                            style={[styles.actionBtnHalf, { backgroundColor: '#ef4444' }]}
-                            icon="cancel"
-                            loading={actioningOrderId === order._id}
-                            disabled={actioningOrderId === order._id}
-                            textColor="#fff"
-                          >
-                            Cancel
-                          </Button>
-                        </View>
-                      );
-                    }
-
-                    if (showUpload) {
-                      return (
-                        <Button
-                          mode="contained"
-                          onPress={() => handleUploadPayment(order._id)}
-                          style={styles.uploadButton}
-                          icon="upload"
-                        >
-                          Upload Payment Proof
-                        </Button>
-                      );
-                    }
 
                     if (showCancel) {
                       return (
@@ -612,22 +564,6 @@ const handleCancelOrder = async (orderId: string) => {
           </View>
         )}
       </ScrollView>
-
-      {selectedOrderId && (
-        <PaymentUploadDialog
-          visible={showPaymentDialog}
-          onDismiss={() => {
-            setShowPaymentDialog(false);
-            setSelectedOrderId(null);
-          }}
-          orderId={selectedOrderId}
-          onSuccess={() => {
-            setShowPaymentDialog(false);
-            setSelectedOrderId(null);
-            fetchOrders();
-          }}
-        />
-      )}
 
       <Snackbar
         visible={snackbarVisible}

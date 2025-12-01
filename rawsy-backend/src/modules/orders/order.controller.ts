@@ -43,11 +43,7 @@ export const placeOrder = async (req: Request, res: Response) => {
     }
 
     const subtotal = unitPrice * quantity;
-    const availableMethods = product.paymentMethod || ["bank_transfer"];
-    const finalPaymentMethod =
-      paymentMethod && availableMethods.includes(paymentMethod)
-        ? paymentMethod
-        : availableMethods[0];
+    const finalPaymentMethod = "cash_on_delivery";
     const items = [
       {
         product: product._id,
@@ -59,7 +55,7 @@ export const placeOrder = async (req: Request, res: Response) => {
       }
     ];
 
-    const paymentStatus = finalPaymentMethod === "bank_transfer" ? "completed" : "pending";
+    const paymentStatus = "pending";
 
     const order = await Order.create({
       buyer: buyer.id,
@@ -839,62 +835,4 @@ export const getOrderTrackingDetails = async (req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
-};
-export const uploadPaymentProof = async (req: Request, res: Response) => {
-  try {
-    const buyer = (req as any).user;
-    const { id } = req.params;
-
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    if (order.buyer.toString() !== buyer.id)
-      return res.status(403).json({ error: "Not authorized" });
-
-    if (!req.file) return res.status(400).json({ error: "Payment proof file required" });
-
-    const upload = await cloudinary.uploader.upload(req.file.path);
-
-    order.paymentProof = upload.secure_url;
-    order.paymentStatus = "pending_review";
-    await order.save();
-
-    return res.json({ message: "Payment proof uploaded successfully", url: upload.secure_url });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-export const approvePayment = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const user = (req as any).user;
-
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
-
-    if (order.supplier.toString() !== user.id && user.role !== "admin")
-      return res.status(403).json({ error: "Not authorized" });
-
-    order.paymentStatus = "completed";
-    await order.save();
-
-    return res.json({ message: "Payment approved" });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
-  }
-};
-export const rejectPayment = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user = (req as any).user;
-
-  const order = await Order.findById(id);
-  if (!order) return res.status(404).json({ error: "Order not found" });
-
-  if (order.supplier.toString() !== user.id && user.role !== "admin")
-    return res.status(403).json({ error: "Not authorized" });
-
-  order.paymentStatus = "failed";
-  order.paymentProof = null as any ;
-  await order.save();
-
-  return res.json({ message: "Payment rejected. Buyer needs to re-upload proof." });
 };

@@ -265,50 +265,8 @@ export default function OrdersScreen() {
                     </Text>
                   </View>
 
-                  {/* Action buttons: upload payment proof and cancel order. Render side-by-side when both available */}
                   {(() => {
-                    const showUpload = user?.role === 'manufacturer' && order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'pending';
                     const showCancel = user?.role === 'manufacturer' && String(order.status || '').trim().toLowerCase() === 'placed';
-
-                    if (showUpload && showCancel) {
-                      return (
-                        <View style={styles.actionRow}>
-                          <Button
-                            mode="contained"
-                            onPress={() => handleUploadPayment(order._id)}
-                            style={[styles.actionBtnHalf, { marginRight: 8 }]}
-                            icon="upload"
-                          >
-                            Upload Proof
-                          </Button>
-
-                          <Button
-                            mode="contained"
-                            onPress={() => handleCancelOrder(order._id)}
-                            style={[styles.actionBtnHalf, { backgroundColor: '#ef4444' }]}
-                            icon="cancel"
-                            loading={actioningOrderId === order._id}
-                            disabled={actioningOrderId === order._id}
-                            textColor="#fff"
-                          >
-                            Cancel
-                          </Button>
-                        </View>
-                      );
-                    }
-
-                    if (showUpload) {
-                      return (
-                        <Button
-                          mode="contained"
-                          onPress={() => handleUploadPayment(order._id)}
-                          style={styles.uploadButton}
-                          icon="upload"
-                        >
-                          Upload Payment Proof
-                        </Button>
-                      );
-                    }
 
                     if (showCancel) {
                       return (

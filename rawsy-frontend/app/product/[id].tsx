@@ -144,7 +144,7 @@ const handleBuyNowCheckout = async () => {
     Array.isArray(product.paymentMethod) &&
     product.paymentMethod.length > 0
       ? product.paymentMethod
-      : ['bank_transfer'];
+      : ['cash_on_delivery'];
 
   const paymentMethod = availablePaymentMethods[0];
 

@@ -81,12 +81,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Payment
     paymentMethod: 'Payment Method',
     paymentStatus: 'Payment Status',
-    bankTransfer: 'Bank Transfer',
     cashOnDelivery: 'Cash on Delivery',
     paymentPending: 'Pending',
     paymentCompleted: 'Completed',
     paymentFailed: 'Failed',
-    uploadPaymentProof: 'Upload Payment Proof',
 
     // Messages
     welcomeBack: 'Welcome back',
@@ -194,12 +192,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Payment
     paymentMethod: 'የክፍያ ዘዴ',
     paymentStatus: 'የክፍያ ሁኔታ',
-    bankTransfer: 'የባንክ ማስተላለፊያ',
     cashOnDelivery: 'በማድረስ ጊዜ ክፍያ',
     paymentPending: 'በመጠባበቅ ላይ',
     paymentCompleted: 'ተጠናቅቋል',
     paymentFailed: 'አልተሳካም',
-    uploadPaymentProof: 'የክፍያ ማረጋገጫ ስቀል',
 
     // Messages
     welcomeBack: 'እንኳን ደና መጣህ',
@@ -307,12 +303,10 @@ export const translations: Record<Language, Record<string, string>> = {
     // Payment
     paymentMethod: 'Mala Kaffaltii',
     paymentStatus: 'Haala Kaffaltii',
-    bankTransfer: 'Dabarsa Baankii',
     cashOnDelivery: 'Yeroo Dhiyaatu Kaffaltii',
     paymentPending: 'Eegaa Jiru',
     paymentCompleted: 'Xumurame',
     paymentFailed: 'Kufate',
-    uploadPaymentProof: 'Ragaa Kaffaltii Fe\'i',
 
     // Messages
     welcomeBack: 'Baga Deebitanii',

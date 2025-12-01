@@ -75,7 +75,7 @@ const HelpSupportScreen: React.FC = () => {
     {
       id: 'm4',
       question: 'What payment methods are available?',
-      answer: 'Currently, we support bank transfers/deposit slips and cash on delivery (if supported by the supplier). Mobile money/Telebirr integration is planned for future updates.',
+      answer: 'Currently, we support cash on delivery. Mobile money/Telebirr integration is planned for future updates.',
       tags: ['payments', 'checkout'],
       category: 'payments'
     },
@@ -163,7 +163,7 @@ const HelpSupportScreen: React.FC = () => {
     {
       id: 's6',
       question: 'How are payments processed?',
-      answer: 'Buyers can pay via bank transfer or cash on delivery. Rawsy helps facilitate secure transactions between buyers and sellers. Payment processing details are shown in your sales analytics.',
+      answer: 'Buyers can pay via cash on delivery. Rawsy helps facilitate secure transactions between buyers and sellers. Payment processing details are shown in your sales analytics.',
       tags: ['payments', 'revenue'],
       category: 'payments'
     },

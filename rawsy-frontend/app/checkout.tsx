@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Image } from 'react-native';
-import { Appbar, Text, Button, RadioButton, ProgressBar, Divider, Surface, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Appbar, Text, Button, RadioButton, Divider, Surface, ActivityIndicator } from 'react-native-paper';
 import { useTheme } from '../context/ThemeContext';
-import * as ImagePicker from 'expo-image-picker';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../services/api';
 import { useRouter } from 'expo-router';
@@ -15,11 +14,9 @@ export default function CheckoutScreen() {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
-  const [paymentMethod, setPaymentMethod] = useState<string>('bank_transfer');
-  const [availableMethods, setAvailableMethods] = useState<string[]>(['bank_transfer']);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string>('cash_on_delivery');
+  const [availableMethods, setAvailableMethods] = useState<string[]>(['cash_on_delivery']);
   const [processing, setProcessing] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     fetchCart();
@@ -39,13 +36,8 @@ export default function CheckoutScreen() {
       setTotalAmount(total);
 
       if (cart.length > 0 && cart[0].product) {
-        const product = cart[0].product;
-        const methods = product.paymentMethod && product.paymentMethod.length > 0
-          ? product.paymentMethod
-          : ['bank_transfer'];
-
-        setAvailableMethods(methods);
-        setPaymentMethod(methods[0]);
+        setAvailableMethods(['cash_on_delivery']);
+        setPaymentMethod('cash_on_delivery');
       }
     } catch (err) {
       console.error('Error fetching cart', err);
@@ -55,25 +47,6 @@ export default function CheckoutScreen() {
     }
   };
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant camera roll permissions to upload payment proof');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-      base64: false,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
-    }
-  };
 
   const formatPaymentMethod = (method: string) => {
     return method.replace('_', ' ').split(' ').map(word =>
@@ -82,38 +55,17 @@ export default function CheckoutScreen() {
   };
 
   const handleCheckout = async () => {
-    if (paymentMethod === 'bank_transfer' && !selectedImage) {
-      Alert.alert('Payment Proof Required', 'Please upload a screenshot of your bank transfer');
-      return;
-    }
-
     try {
       setProcessing(true);
-      setUploadProgress(0);
 
       const formData = new FormData();
       formData.append('paymentMethod', paymentMethod);
-
-      if (paymentMethod === 'bank_transfer' && selectedImage) {
-        const imageFile: any = {
-          uri: selectedImage,
-          type: 'image/jpeg',
-          name: `payment_${Date.now()}.jpg`,
-        };
-        formData.append('paymentProof', imageFile);
-      }
 
       await api.post(
         '/cart/checkout',
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent: any) => {
-            if (progressEvent.total) {
-              const progress = progressEvent.loaded / progressEvent.total;
-              setUploadProgress(progress);
-            }
-          },
         }
       );
 
@@ -177,12 +129,6 @@ export default function CheckoutScreen() {
                   position="leading"
                   style={styles.radioButton}
                 />
-                {method === 'bank_transfer' && (
-                  <View style={styles.methodInfo}>
-                    <MaterialIcons name="account-balance" size={16} color={theme.colors.primary} />
-                    <Text variant="bodySmall" style={[styles.methodInfoText, { color: theme.colors.onSurfaceVariant }]}>Upload payment proof after transfer</Text>
-                  </View>
-                )}
                 {method === 'cash_on_delivery' && (
                   <View style={styles.methodInfo}>
                     <MaterialIcons name="local-shipping" size={16} color={theme.colors.primary} />
@@ -194,36 +140,7 @@ export default function CheckoutScreen() {
           </RadioButton.Group>
         </View>
 
-        {paymentMethod === 'bank_transfer' && (
-          <>
-            <Divider style={styles.divider} />
 
-            <View style={styles.uploadSection}>
-              <Text variant="titleMedium" style={styles.sectionTitle}>Payment Proof</Text>
-
-              <View style={[styles.infoBox, { backgroundColor: theme.colors.secondaryContainer }]}> 
-                <MaterialIcons name="info" size={20} color={theme.colors.secondary} />
-                <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSecondaryContainer }]}>Please complete your bank transfer and upload a screenshot or photo of the payment confirmation</Text>
-              </View>
-
-              {selectedImage ? (
-                <View style={styles.imagePreview}>
-                  <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-                  <Button mode="outlined" onPress={pickImage} disabled={processing} style={styles.changeButton} icon="image">Change Image</Button>
-                </View>
-              ) : (
-                <Button mode="contained-tonal" onPress={pickImage} icon="camera" style={styles.selectButton} disabled={processing}>Upload Payment Proof</Button>
-              )}
-            </View>
-          </>
-        )}
-
-        {processing && (
-          <View style={styles.progressContainer}>
-            <Text variant="bodySmall" style={styles.progressText}>{paymentMethod === 'bank_transfer' ? 'Uploading...' : 'Processing...'} {Math.round(uploadProgress * 100)}%</Text>
-            <ProgressBar progress={uploadProgress} color={theme.colors.primary} />
-          </View>
-        )}
 
         <View style={{ padding: 16 }}>
           <Button mode="contained" onPress={handleCheckout} loading={processing} disabled={processing} icon="check">Place Order</Button>
