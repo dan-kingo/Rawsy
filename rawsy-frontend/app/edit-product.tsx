@@ -345,11 +345,11 @@ const handleRemoveDiscount = async () => {
     )}
   </View>
 
-  <View style={{ flexDirection: 'row', gap: 12 }}>
+  <View style={{ flexDirection: 'column', gap: 12 }}>
     <Button mode="contained" onPress={handleApplyDiscount} loading={savingDiscount} style={{ flex: 1 }}>
       Apply / Update Discount
     </Button>
-    <Button mode="outlined" onPress={handleRemoveDiscount} disabled={!discountPercentage} style={{ flex: 1 }}>
+    <Button mode="outlined" onPress={handleRemoveDiscount} disabled={!discountPercentage} style={{ flex: 1, }}>
       Remove Discount
     </Button>
   </View>
@@ -370,7 +370,7 @@ const handleRemoveDiscount = async () => {
           </View>
         </ScrollView>
 
-        <Surface style={[styles.footer, {backgroundColor: theme.colors.surface}]} elevation={4}>
+        <Surface style={[styles.footer, {backgroundColor: theme.colors.background}]} elevation={4}>
           <Button mode="outlined" onPress={() => router.back()} style={styles.footerButton} disabled={saving}>
             Cancel
           </Button>
@@ -465,6 +465,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     gap: 12,
+    marginBottom: 64
   },
   footerButton: {
     flex: 1,

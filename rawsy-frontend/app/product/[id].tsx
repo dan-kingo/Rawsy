@@ -259,7 +259,7 @@ const handleBuyNowCheckout = async () => {
            {product.discount?.active && (
           <View style={styles.discountContainer}>
          <Badge style={styles.discountBadge} size={32}>
-      {`${product.discount.percentage}%`}
+      {`Discount  ${product.discount.percentage}%`}
     </Badge>
 
     {product.discount?.expiresAt && (
@@ -513,6 +513,7 @@ const handleBuyNowCheckout = async () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginBottom: 64
   },
   content: {
     flex: 1,
@@ -533,12 +534,16 @@ const styles = StyleSheet.create({
   mainImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 0,
   },
   discountBadge: {
+    width: 164,
+    height: 48,
     position: 'absolute',
     top: 16,
     right: 16,
-    backgroundColor: '#ef4444',
+    backgroundColor: '#104617ff',
+color: '#fff',
   },
   outOfStockOverlay: {
     position: 'absolute',

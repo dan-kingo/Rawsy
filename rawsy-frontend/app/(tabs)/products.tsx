@@ -584,7 +584,7 @@ function SupplierProductsView() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, paddingBottom:64 },
   content: { flex: 1 },
   searchSection: { padding: 16, paddingBottom: 8 },
   searchbar: { marginBottom: 12 },
