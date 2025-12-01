@@ -150,5 +150,6 @@ const styles = StyleSheet.create({
   },
   linkButton: {
     marginTop: 8,
+    color: '#2563eb',
   },
 });

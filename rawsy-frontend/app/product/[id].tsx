@@ -423,7 +423,7 @@ const handleBuyNowCheckout = async () => {
         <Card.Content>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
             <Text variant="titleSmall" style={{ fontWeight: 'bold', marginRight: 8 }}>
-              {review.user?.name || 'Anonymous'}
+              {review.user?.companyName || 'Anonymous'}
             </Text>
             <Text style={{ color: '#f59e0b' }}>
               {'⭐'.repeat(Math.round(review.rating))}

@@ -97,7 +97,7 @@ function ManufacturerHome({ homeData, refreshing, onRefresh }: any) {
       >
         <Surface style={[styles.welcomeCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
           <Text variant="headlineSmall" style={[styles.welcomeTitle, { color: theme.colors.onSurface }]}>
-            {t('welcomeBack')}, {user?.name}!
+            {t('welcomeBack')}, {user?.companyName}!
           </Text>
           <View style={styles.userInfo}>
             <Chip
@@ -345,7 +345,7 @@ function SupplierDashboard({ homeData, refreshing, onRefresh }: any) {
         <ScrollView style={styles.content}>
           <Surface style={[styles.welcomeCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
             <Text variant="headlineSmall" style={styles.welcomeTitle}>
-              Welcome, {user?.name}!
+              Welcome, {user?.companyName}!
             </Text>
           </Surface>
           <Card style={[styles.alertCard, { backgroundColor: theme.colors.surfaceVariant }]}>
@@ -382,7 +382,7 @@ function SupplierDashboard({ homeData, refreshing, onRefresh }: any) {
           <View style={styles.welcomeHeader}>
             <View style={styles.welcomeTextContainer}>
               <Text variant="headlineSmall" style={styles.welcomeTitle}>
-                Welcome back, {user?.name}!
+                Welcome back, {user?.companyName}!
               </Text>
               <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginTop: 4 }}>
                 Manage your business operations
@@ -397,7 +397,7 @@ function SupplierDashboard({ homeData, refreshing, onRefresh }: any) {
                      ) : (
                        <Avatar.Text
                          size={80}
-                         label={user?.name?.charAt(0).toUpperCase() || 'U'}
+                         label={user?.companyName?.charAt(0).toUpperCase() || 'U'}
                          style={styles.avatar}
                        />
                      )}

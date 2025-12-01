@@ -55,14 +55,14 @@ export default function AccountScreen() {
           ) : (
             <Avatar.Text
               size={80}
-              label={user?.name?.charAt(0).toUpperCase() || 'U'}
+              label={user?.companyName?.charAt(0).toUpperCase() || 'U'}
               style={styles.avatar}
             />
           )}
          
 
           <Text variant="headlineSmall" style={styles.userName}>
-            {user?.name}
+            {user?.companyName}
           </Text>
           <Text variant="bodyMedium" style={styles.userRole}>
            {(user?.role ?? '').charAt(0).toUpperCase() + (user?.role ?? '').slice(1)}

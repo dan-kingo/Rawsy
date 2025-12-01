@@ -40,7 +40,7 @@ export default function CompleteProfileScreen() {
   const existingLocation: any = user?.businessLocation || user?.factoryLocation || {};
   const [address, setAddress] = useState(existingLocation.address || '');
   const [placeName, setPlaceName] = useState(existingLocation.placeName || '');
-  const [contactName, setContactName] = useState(existingLocation.contactName || user?.name || '');
+  const [contactName, setContactName] = useState(existingLocation.contactName || user?.companyName || '');
   const [contactPhone, setContactPhone] = useState(existingLocation.contactPhone || user?.phone || '');
   const [latitude, setLatitude] = useState(
     existingLocation.coordinates?.lat !== undefined ? String(existingLocation.coordinates.lat) : ''
