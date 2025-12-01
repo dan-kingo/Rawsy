@@ -16,7 +16,8 @@
         "backgroundColor": "#E6F4FE"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.dankingo.rawsyfrontend"
     },
     "web": {
       "output": "static",
@@ -40,6 +41,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2434bdad-8254-445e-b30f-ec624ef47089"
+      }
     }
   }
 }
