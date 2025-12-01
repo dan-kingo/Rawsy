@@ -45,7 +45,6 @@ export default function LoginScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
         </TouchableOpacity>
         <View style={styles.header}>
           <Text variant="displaySmall" style={styles.title}>

@@ -38,7 +38,7 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#0ea5e9', '#0284c7', '#0369a1']}
+        colors={[theme.colors.background, theme.colors.surface]}
         style={styles.gradient}
       >
         <ScrollView
@@ -63,7 +63,7 @@ export default function WelcomeScreen() {
 
           <View style={styles.featuresContainer}>
             {features.map((feature, index) => (
-              <View key={index} style={styles.featureCard}>
+              <View key={index} style={[styles.featureCard, {backgroundColor: theme.colors.surface}]}>
                 <View style={styles.iconContainer}>
                   <MaterialIcons
                     name={feature.icon as any}
@@ -87,7 +87,7 @@ export default function WelcomeScreen() {
             <Button
               mode="contained"
               onPress={() => router.replace('/login')}
-              style={styles.primaryButton}
+              style={[styles.primaryButton, {backgroundColor: theme.colors.primary}]}
               labelStyle={styles.primaryButtonLabel}
               contentStyle={styles.buttonContent}
             >
@@ -147,8 +147,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   logo: {
-    width: 90,
-    height: 90,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
   },
   title: {
     fontWeight: 'bold',
@@ -166,7 +167,6 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -190,11 +190,11 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontWeight: 'bold',
-    color: '#0f172a',
+    color: '#fff',
     marginBottom: 6,
   },
   featureDescription: {
-    color: '#64748b',
+    color: '#fff',
     lineHeight: 20,
   },
   actionContainer: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   primaryButtonLabel: {
-    color: '#0284c7',
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },

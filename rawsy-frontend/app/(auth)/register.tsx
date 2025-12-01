@@ -67,7 +67,6 @@ export default function RegisterScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <MaterialIcons name="arrow-back" size={24} color={theme.colors.onSurface} />
         </TouchableOpacity>
 
         <View style={styles.header}>
