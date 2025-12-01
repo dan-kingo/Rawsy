@@ -107,6 +107,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
   },
   scrollContent: {
     flexGrow: 1,
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    paddingBottom: 40,
   },
   title: {
     fontWeight: 'bold',

@@ -11,7 +11,7 @@ function RootLayoutInner() {
   const { theme, isDarkMode } = useTheme();
  useEffect(() => {
     // ensure system bars match app surface color
-    SystemUI.setBackgroundColorAsync(theme.colors.background);
+    SystemUI.setBackgroundColorAsync(theme.colors.surface);
   }, []);
   return (
     <PaperProvider theme={theme}>
