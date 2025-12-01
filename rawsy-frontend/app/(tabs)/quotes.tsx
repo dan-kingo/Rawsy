@@ -11,7 +11,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import api from '../../services/api';
 import SupplierQuoteResponseDialog from '../../components/SupplierQuoteResponseDialog';
@@ -31,10 +31,20 @@ export default function QuotesScreen() {
   const [showOrderDialog, setShowOrderDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<string | null>(null);
+  const params = useLocalSearchParams();
 
   useEffect(() => {
     fetchQuotes();
   }, []);
+
+  useEffect(() => {
+    const id = (params as any).createdOrderId as string | undefined;
+    if (id) {
+      setCreatedOrderId(id);
+      // remove the param by replacing route without query
+      router.replace('/(tabs)/quotes');
+    }
+  }, [params.createdOrderId]);
 
   const fetchQuotes = async () => {
     try {
