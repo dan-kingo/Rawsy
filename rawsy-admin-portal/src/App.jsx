@@ -119,11 +119,11 @@ function App() {
         <div className="sidebar-footer">
           <div className="user-card">
             <div className="user-avatar">
-              {adminuser?.companyName?.charAt(0)?.toUpperCase() || 'A'}
+              {adminUser?.companyName?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             {!sidebarCollapsed && (
               <div className="user-info">
-                <span className="user-name">{adminuser?.companyName || 'Admin'}</span>
+                <span className="user-name">{adminUser?.companyName || 'Admin'}</span>
                 <span className="user-role">Administrator</span>
               </div>
             )}
