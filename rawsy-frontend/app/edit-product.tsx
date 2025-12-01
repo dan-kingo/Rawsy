@@ -45,6 +45,7 @@ export default function EditProductScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [productStatus, setProductStatus] = useState<string | undefined>(undefined);
 const [discountPercentage, setDiscountPercentage] = useState('');
 const [discountExpiry, setDiscountExpiry] = useState<Date | null>(null);
 const [showDatePicker, setShowDatePicker] = useState(false);
@@ -75,6 +76,7 @@ const [savingDiscount, setSavingDiscount] = useState(false);
       setUnit(product.unit || 'kg');
       setStock(String(product.stock || ''));
       setNegotiable(product.negotiable || false);
+      setProductStatus(product.status);
        if (product.discount?.active) {
       setDiscountPercentage(String(product.discount.percentage));
       setDiscountExpiry(product.discount.expiresAt ? new Date(product.discount.expiresAt) : null);
@@ -158,11 +160,19 @@ const handleRemoveDiscount = async () => {
         negotiable,
       };
 
+      // Preserve existing status when updating: do not demote approved products to pending
+      if (productStatus) {
+        // include status explicitly so backend can decide to keep it
+        (productData as any).status = productStatus;
+      }
+
       await api.put(`/products/${id}`, productData);
 
       Alert.alert(
         'Success',
-        'Product updated successfully. It will be reviewed by admin.',
+        productStatus === 'approved'
+          ? 'Product updated successfully.'
+          : 'Product updated successfully. It will be reviewed by admin.',
         [
           {
             text: 'OK',
@@ -353,12 +363,14 @@ const handleRemoveDiscount = async () => {
 
           <View style={[styles.infoBox, { backgroundColor: theme.colors.surfaceVariant }]}>
             <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, lineHeight: 20 }}>
-              After updating, your product will be reviewed by admin before changes appear in the marketplace.
+              {productStatus === 'approved'
+                ? 'This product is approved — updates will remain approved and appear immediately.'
+                : 'After updating, your product will be reviewed by admin before changes appear in the marketplace.'}
             </Text>
           </View>
         </ScrollView>
 
-        <Surface style={styles.footer} elevation={4}>
+        <Surface style={[styles.footer, {backgroundColor: theme.colors.surface}]} elevation={4}>
           <Button mode="outlined" onPress={() => router.back()} style={styles.footerButton} disabled={saving}>
             Cancel
           </Button>
@@ -453,7 +465,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     gap: 12,
-    backgroundColor: '#fff',
   },
   footerButton: {
     flex: 1,
