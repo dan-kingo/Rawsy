@@ -33,16 +33,16 @@ function PlatformAnalytics() {
       const token = localStorage.getItem("authToken");
 
       const [overviewRes, suppliersRes, productsRes, trendsRes] = await Promise.all([
-        fetch("http://localhost:4000/api/admin/metrics/overview", {
+        fetch("https://rawsy.onrender.com/api/admin/metrics/overview", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:4000/api/admin/metrics/top-suppliers?limit=5", {
+        fetch("https://rawsy.onrender.com/api/admin/metrics/top-suppliers?limit=5", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:4000/api/admin/metrics/top-products?limit=5", {
+        fetch("https://rawsy.onrender.com/api/admin/metrics/top-products?limit=5", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:4000/api/admin/metrics/trends?months=6", {
+        fetch("https://rawsy.onrender.com/api/admin/metrics/trends?months=6", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

@@ -24,7 +24,7 @@ function ProductModeration() {
       setError('');
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:4000/api/admin/products', {
+      const response = await fetch('https://rawsy.onrender.com/api/admin/products', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -49,7 +49,7 @@ function ProductModeration() {
       setActionLoading(productId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/products/review/${productId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/products/review/${productId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -80,7 +80,7 @@ function ProductModeration() {
       setActionLoading(productId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/products/review/${productId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/products/review/${productId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -108,7 +108,7 @@ function ProductModeration() {
       setActionLoading(productId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/products/${productId}/flag`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/products/${productId}/flag`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

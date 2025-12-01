@@ -5,7 +5,7 @@ import * as Device from "expo-device";
 
 // Detect correct base URL automatically (optional)
 //const LOCAL_IP = "10.19.18.42"; // change this to YOUR PC's IP
-const API_BASE_URL = 'http://10.224.105.216:4000/api';
+const API_BASE_URL = 'https://rawsy.onrender.com/api';
  
 
 const api = axios.create({

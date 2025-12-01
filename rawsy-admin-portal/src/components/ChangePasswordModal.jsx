@@ -57,7 +57,7 @@ const ChangePasswordModal = ({ onClose }) => {
 
       const token = localStorage.getItem('authToken');
       
-      const response = await fetch('http://localhost:4000/api/auth/me/change-password', {
+      const response = await fetch('https://rawsy.onrender.com/api/auth/me/change-password', {
         method: 'PUT', // Changed to PUT
         headers: {
           'Content-Type': 'application/json',

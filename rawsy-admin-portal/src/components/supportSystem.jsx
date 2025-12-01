@@ -27,7 +27,7 @@ const AdminSupportSystem = () => {
   const fetchFAQs = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/support/faq');
+      const response = await fetch('https://rawsy.onrender.com/api/support/faq');
       const data = await response.json();
       if (response.ok) {
         setFaqs(data.faqs || []);
@@ -54,7 +54,7 @@ const AdminSupportSystem = () => {
       setLoading(true);
       const tagsArray = faqForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
-      const response = await fetch('http://localhost:4000/api/support/faq', {
+      const response = await fetch('https://rawsy.onrender.com/api/support/faq', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const AdminSupportSystem = () => {
       setLoading(true);
       const tagsArray = faqForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
-      const response = await fetch(`http://localhost:4000/api/support/faq/${editingFaq._id}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/support/faq/${editingFaq._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ const AdminSupportSystem = () => {
     if (!window.confirm('Are you sure you want to delete this FAQ?')) return;
     
     try {
-      const response = await fetch(`http://localhost:4000/api/support/faq/${id}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/support/faq/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -158,7 +158,7 @@ const AdminSupportSystem = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/support/broadcast', {
+      const response = await fetch('https://rawsy.onrender.com/api/support/broadcast', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

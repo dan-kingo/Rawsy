@@ -32,7 +32,7 @@ function UserManagement() {
       setError('');
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:4000/api/auth/users', {
+      const response = await fetch('https://rawsy.onrender.com/api/auth/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -56,7 +56,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/supplier/approve/${userId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/supplier/approve/${userId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -80,7 +80,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/supplier/reject/${userId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/supplier/reject/${userId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -108,7 +108,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/auth/manufacturer/${userId}/suspend`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/auth/manufacturer/${userId}/suspend`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -132,7 +132,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/auth/manufacturer/${userId}/unsuspend`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/auth/manufacturer/${userId}/unsuspend`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -160,7 +160,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/auth/manufacturer/${userId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/auth/manufacturer/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -202,7 +202,7 @@ function UserManagement() {
       setActionLoading(userId);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch(`http://localhost:4000/api/admin/supplier/verify/${userId}`, {
+      const response = await fetch(`https://rawsy.onrender.com/api/admin/supplier/verify/${userId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
