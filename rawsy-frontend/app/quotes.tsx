@@ -224,22 +224,24 @@ export default function QuotesScreen() {
                   </View>
 
                   {quote.notes && (
-                    <View style={styles.notesSection}>
-                      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                        Notes:
-                      </Text>
-                      <Text variant="bodyMedium" style={styles.notes}>
-                        {quote.notes}
-                      </Text>
+                    <View style={[styles.notesSection, { backgroundColor: theme.colors.background }]}>
+                      <View style={{ flex: 1 }}>
+                        <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                          Notes:
+                        </Text>
+                        <Text variant="bodyMedium" style={[styles.notes, { color: theme.colors.onSurface }]}>
+                          {quote.notes}
+                        </Text>
+                      </View>
                     </View>
                   )}
 
                   {quote.supplierMessage && (
-                    <View style={styles.messageSection}>
+                    <View style={[styles.messageSection, { backgroundColor: theme.colors.surfaceVariant }]}>
                       <Text variant="bodySmall" style={{ color: theme.colors.primary }}>
                         Supplier Message:
                       </Text>
-                      <Text variant="bodyMedium" style={styles.message}>
+                      <Text variant="bodyMedium" style={[styles.message, { color: theme.colors.onSurface }]}>
                         {quote.supplierMessage}
                       </Text>
                     </View>
@@ -389,8 +391,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notesSection: {
-    backgroundColor: '#f9fafb',
     padding: 12,
+    display: 'flex',
+    flexDirection: 'row',
     borderRadius: 8,
     marginBottom: 8,
   },

@@ -131,6 +131,7 @@ export default function CartScreen() {
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <Appbar.Header elevated>
           <Appbar.Content title="Cart" />
+          <Appbar.Action icon="refresh" onPress={fetchCart} disabled={loading} />
         </Appbar.Header>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" />
@@ -143,6 +144,7 @@ export default function CartScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header elevated>
         <Appbar.Content title="Cart" />
+        <Appbar.Action icon="refresh" onPress={fetchCart} disabled={loading} />
       </Appbar.Header>
 
       {cart.length === 0 ? (
@@ -167,7 +169,7 @@ export default function CartScreen() {
                         {item.product?.name || 'Unknown Product'}
                       </Text>
                       <Text variant="bodySmall" style={styles.category}>
-                        {item.product?.category}
+                        Category: {item.product?.category}
                       </Text>
                       <Text variant="titleMedium" style={styles.itemPrice}>
 {(item.product?.discount?.active
@@ -277,12 +279,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   category: {
-    color: '#666',
+    color: '#fff',
     marginTop: 4,
     textTransform: 'capitalize',
   },
   itemPrice: {
-    color: '#2563eb',
+    color: '#fff',
     marginTop: 8,
   },
   quantityControls: {
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
   },
   totalAmount: {
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: '#fff',
   },
   checkoutButton: {
     paddingVertical: 8,

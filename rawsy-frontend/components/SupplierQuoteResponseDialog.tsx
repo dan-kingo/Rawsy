@@ -1,15 +1,8 @@
 import { useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
-import {
-  Dialog,
-  Portal,
-  Text,
-  TextInput,
-  Button,
-  HelperText,
-  Divider,
-  RadioButton,
-} from 'react-native-paper';
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
+import { Text, TextInput, Button, HelperText, Divider, RadioButton } from 'react-native-paper';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 
@@ -104,118 +97,15 @@ payload.supplierProposedPrice = parseFloat(counterPrice);
     onDismiss();
   };
 
-  return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={handleCancel} style={styles.dialog}>
-        <Dialog.Title>Respond to Quote</Dialog.Title>
+  const router = useRouter();
+  useEffect(() => {
+    if (visible && quote?._id) {
+      router.push(`/respond-quote/${quote._id}`);
+      onDismiss();
+    }
+  }, [visible, quote?._id]);
 
-        <Dialog.Content>
-          <View style={styles.quoteInfo}>
-            <Text variant="titleMedium" style={styles.productName}>
-              {quote?.productSnapshot?.name}
-            </Text>
-            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-              From: {quote?.buyer?.name}
-            </Text>
-            <Text variant="bodySmall" style={[styles.requestedQty, { color: theme.colors.primary }]}>
-Requested: {quote?.counterMinimumQty || quote?.quantityRequested} {quote?.productSnapshot?.unit} × {quote?.buyerProposedPrice?? quote?.productSnapshot?.price  } ETB
-            </Text>
-          </View>
-
-          <Divider style={styles.divider} />
-
-          <View style={styles.actionSelection}>
-            <Text variant="labelLarge" style={styles.sectionLabel}>
-              Your Response
-            </Text>
-
-            <RadioButton.Group onValueChange={(value) => setAction(value as any)} value={action}>
-              <View style={styles.radioOption}>
-                <RadioButton.Android value="accept" />
-                <Text variant="bodyMedium">Accept (Original Price)</Text>
-              </View>
-              <View style={styles.radioOption}>
-                <RadioButton.Android value="counter" />
-                <Text variant="bodyMedium">Counter Offer (Modify Price)</Text>
-              </View>
-              <View style={styles.radioOption}>
-                <RadioButton.Android value="reject" />
-                <Text variant="bodyMedium">Reject Request</Text>
-              </View>
-            </RadioButton.Group>
-          </View>
-
-          {action === 'counter' && (
-            <View style={styles.counterForm}>
-              <TextInput
-                label="Counter Price (ETB)"
-                value={counterPrice}
-                onChangeText={setcounterPrice}
-                mode="outlined"
-                keyboardType="numeric"
-                placeholder="Enter your price"
-                style={styles.input}
-                error={!!error && error.includes('price')}
-              />
-
-              <TextInput
-                label={`Minimum Order Quantity (${quote?.productSnapshot?.unit}) - Optional`}
-                value={counterMinimumQty}
-                onChangeText={setcounterMinimumQty}
-                mode="outlined"
-                keyboardType="numeric"
-                placeholder="Enter minimum quantity"
-                style={styles.input}
-              />
-            </View>
-          )}
-
-          <TextInput
-            label="Message to Buyer (Optional)"
-            value={supplierMessage}
-            onChangeText={setSupplierMessage}
-            mode="outlined"
-            multiline
-            numberOfLines={3}
-            placeholder="Add any notes or requirements"
-            style={styles.input}
-          />
-
-          {error && (
-            <HelperText type="error" visible={!!error}>
-              {error}
-            </HelperText>
-          )}
-
-          <View style={[styles.infoBox, { backgroundColor: theme.colors.surfaceVariant }]}>
-            <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurface }]}>
-              {action === 'accept' && 'The buyer will be notified and can proceed with the order.'}
-              {action === 'counter' && 'The buyer will receive your counter offer and can accept or decline.'}
-              {action === 'reject' && 'The quote request will be rejected and the buyer will be notified.'}
-            </Text>
-          </View>
-        </Dialog.Content>
-
-        <Dialog.Actions>
-          <Button onPress={handleCancel} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            loading={loading}
-            disabled={loading || (action === 'counter' && !counterPrice)}
-          >
-            {action === 'accept' ? 'Accept' : action === 'reject' ? 'Reject' : 'Send Counter Offer'}
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
-
-    
-  );
-    
-
+  return null;
 }
 
 const styles = StyleSheet.create({
