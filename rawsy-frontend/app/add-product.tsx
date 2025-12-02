@@ -50,22 +50,42 @@ export default function AddProductScreen() {
 // Add this inside your component
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (status !== 'granted') {
-      Alert.alert('Permission Required', 'Please grant access to photos');
-      return;
-    }
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant access to photos');
+        return;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true,
-      quality: 0.8,
-    });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets.length > 0) {
-      const uris = result.assets.map((asset) => asset.uri);
-      setImages([...images, ...uris].slice(0, 5));
+      // Handle different result shapes across Expo Go / standalone / SDK versions
+      // Typical shapes:
+      // - { canceled: false, assets: [{ uri, fileName, type }] }
+      // - { canceled: false, uri } (older)
+      // - { canceled: true }
+      let pickedUris: string[] = [];
+      if ((result as any).canceled === false && Array.isArray((result as any).assets) && (result as any).assets.length > 0) {
+        pickedUris = (result as any).assets.map((a: any) => a.uri).filter(Boolean);
+      } else if ((result as any).uri) {
+        pickedUris = [(result as any).uri];
+      }
+
+      if (pickedUris.length > 0) {
+        // add and cap at 5
+        setImages((prev) => {
+          const merged = [...prev, ...pickedUris];
+          return merged.slice(0, 5);
+        });
+      }
+    } catch (err) {
+      console.error('Image picker error:', err);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 

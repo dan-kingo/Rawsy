@@ -70,8 +70,22 @@ export default function UploadVerificationScreen() {
         copyToCacheDirectory: true,
       });
 
-      if (!result.canceled && result.assets[0]) {
-        setSelectedFile(result.assets[0]);
+      // DocumentPicker may return different shapes depending on environment:
+      // - In Expo Go / newer versions: { canceled: false, assets: [{ uri, name, mimeType }] }
+      // - In standalone or older versions: { type: 'success', uri, name, mimeType }
+      let fileObj: any = null;
+      if ((result as any).canceled === false && (result as any).assets && (result as any).assets[0]) {
+        fileObj = (result as any).assets[0];
+      } else if ((result as any).type === 'success' && (result as any).uri) {
+        fileObj = {
+          uri: (result as any).uri,
+          name: (result as any).name || `doc_${Date.now()}`,
+          mimeType: (result as any).mimeType || (result as any).type || undefined,
+        };
+      }
+
+      if (fileObj) {
+        setSelectedFile(fileObj);
         setShowDocTypeDialog(true);
       }
     } catch (error) {
@@ -564,6 +578,7 @@ const styles = StyleSheet.create({
   },
   documentsSection: {
     padding: 16,
+    marginBottom: 32
   },
   sectionTitle: {
     fontWeight: 'bold',

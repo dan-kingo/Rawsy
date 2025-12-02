@@ -6,6 +6,9 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    // Newer SDKs expect these fields as well
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -16,7 +19,9 @@ export const notificationService = {
       let finalStatus = existingStatus;
 
       if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
+        const { status } = await Notifications.requestPermissionsAsync({
+          ios: { allowAlert: true, allowBadge: true, allowSound: true, provideAppNotificationSettings: true },
+        });
         finalStatus = status;
       }
 
@@ -25,9 +30,9 @@ export const notificationService = {
         return null;
       }
 
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id',
-      });
+      // Get Expo push token (no placeholder projectId). If you use EAS push you can pass projectId here.
+      const token = await Notifications.getExpoPushTokenAsync();
+      console.log('Expo push token:', token);
 
       if (Platform.OS === 'android') {
         Notifications.setNotificationChannelAsync('default', {
