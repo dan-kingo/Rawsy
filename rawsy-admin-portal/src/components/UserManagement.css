@@ -37,11 +37,13 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  justify-content: center;
 }
 
 .search-box {
-  position: relative;
+  /* position: relative; */
   min-width: 300px;
+  margin-top: 16px;
 }
 
 .search-input {
@@ -63,10 +65,11 @@
 
 .search-icon {
   position: absolute;
-  left: 16px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;
+  font-size: 18px;
 }
 
 .refresh-button {
@@ -91,7 +94,19 @@
 }
 
 .refresh-icon {
-  font-size: 16px;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Keep refresh button vertically aligned with search input */
+.header-actions .refresh-button {
+  height: 44px;
+  padding: 10px 16px;
+}
+
+.search-input {
+  height: 44px;
 }
 
 .error-banner {
@@ -296,7 +311,6 @@
 
 .user-info {
   display: flex;
-  align-items: center;
   gap: 12px;
 }
 
@@ -320,8 +334,8 @@
 
 .user-name {
   font-weight: 600;
-  color: #1e293b;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 13px;
 }
 
 .user-email {
@@ -335,6 +349,14 @@
   color: #94a3b8;
   margin-top: 2px;
   font-style: italic;
+}
+
+.user-company-large {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2px;
+  display: block;
 }
 
 .role-badge {
@@ -664,3 +686,39 @@
     width: 100%;
   }
 }
+
+/* Action menu styles (overflow) */
+.menu-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-menu {
+  position: absolute;
+  right: 8px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  padding: 8px;
+  border-radius: 6px;
+  z-index: 50;
+  min-width: 160px;
+}
+
+.action-menu .menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.action-menu .menu-item:hover { background: #f6f6f6; }
+.action-menu .menu-item.disabled { color: #999; cursor: default; }
