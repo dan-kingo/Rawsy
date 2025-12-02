@@ -1,5 +1,6 @@
 import React from 'react';
 import './UserDetailsModal.css';
+import { MdEmail, MdPhone, MdApartment, MdCheckCircle, MdDescription, MdClose } from 'react-icons/md';
 
 function UserDetailsModal({ user, onClose }) {
   return (
@@ -7,24 +8,24 @@ function UserDetailsModal({ user, onClose }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="user-avatar">
-            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            {user.companyName ? user.companyName.charAt(0).toUpperCase() : 'U'}
           </div>
           <div className="header-content">
-            <h2>{user.name || 'N/A'}</h2>
+            <h2>{user.companyName || 'Guest'}</h2>
             <p className="user-role">{user.role || 'No role specified'}</p>
           </div>
           <span className={`status-badge ${getStatusClass(user.status)}`}>
             {user.status}
           </span>
-          <button className="modal-close" onClick={onClose}>
-            &times;
+          <button className="modal-close" onClick={onClose} aria-label="Close modal">
+            <MdClose />
           </button>
         </div>
 
         <div className="modal-body">
           <div className="details-grid">
             <div className="detail-card">
-              <div className="detail-icon">📧</div>
+              <div className="detail-icon"><MdEmail /></div>
               <div className="detail-content">
                 <label>Email Address</label>
                 <p>{user.email || 'N/A'}</p>
@@ -32,7 +33,7 @@ function UserDetailsModal({ user, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">📱</div>
+              <div className="detail-icon"><MdPhone /></div>
               <div className="detail-content">
                 <label>Phone Number</label>
                 <p>{user.phone || 'N/A'}</p>
@@ -40,7 +41,7 @@ function UserDetailsModal({ user, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">🏢</div>
+              <div className="detail-icon"><MdApartment /></div>
               <div className="detail-content">
                 <label>Company</label>
                 <p>{user.companyName || 'N/A'}</p>
@@ -48,7 +49,7 @@ function UserDetailsModal({ user, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">✅</div>
+              <div className="detail-icon"><MdCheckCircle /></div>
               <div className="detail-content">
                 <label>Verified Supplier</label>
                 <p className={user.verifiedSupplier ? 'verified-yes' : 'verified-no'}>
@@ -63,8 +64,8 @@ function UserDetailsModal({ user, onClose }) {
               <h3>Verification Documents</h3>
               <div className="documents-grid">
                 {user.verificationDocs.map((doc, idx) => (
-                  <div key={idx} className="document-card">
-                    <div className="document-icon">📄</div>
+                    <div key={idx} className="document-card">
+                    <div className="document-icon"><MdDescription /></div>
                     <div className="document-info">
                       <span className="document-name">
                         {doc.name || `Document ${idx + 1}`}
