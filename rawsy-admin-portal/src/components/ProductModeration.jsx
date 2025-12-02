@@ -1,18 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import ProductDetailsModal from './ProductDetailsModal';
 import './ProductModeration.css';
+import {
+  MdRefresh,
+  MdWarning,
+  MdInventory2,
+  MdHourglassEmpty,
+  MdCheck,
+  MdClose,
+  MdFlag,
+  MdSearch,
+  MdClear,
+  MdVisibility
+} from 'react-icons/md';
+
+import { MdMoreVert } from 'react-icons/md';
 
 function ProductModeration() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
-  const [filter, setFilter] = useState('pending');
+  const [filter, setFilter] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectingProductId, setRejectingProductId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [openActionsFor, setOpenActionsFor] = useState(null);
+
+  // Close action menu when clicking outside or pressing Escape
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (openActionsFor === null) return;
+      if (e.target.closest && (e.target.closest('.action-menu') || e.target.closest('.menu-toggle'))) return;
+      setOpenActionsFor(null);
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Escape') setOpenActionsFor(null);
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [openActionsFor]);
 
   useEffect(() => {
     fetchProducts();
@@ -114,16 +150,35 @@ function ProductModeration() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ flagged: true }),
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error('Failed to flag product');
+        const serverMsg = data?.error || data?.message || response.statusText;
+        throw new Error(`Failed to flag product: ${serverMsg}`);
       }
 
-      await fetchProducts();
+      // Update the single product in state with returned product (avoid full refetch)
+      const returnedProduct = data?.product || data;
+      if (returnedProduct && returnedProduct._id) {
+        setProducts((prev) => prev.map((p) => (p._id === returnedProduct._id ? returnedProduct : p)));
+        // show success message
+        setError('');
+        setSuccessMessage(returnedProduct.flagged ? 'Product flagged successfully' : 'Product unflagged successfully');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        // fallback to refetch if response shape unexpected
+        await fetchProducts();
+        setError('');
+        setSuccessMessage('Product flag state updated');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+      setOpenActionsFor(null);
     } catch (err) {
       alert(`Error: ${err.message}`);
+      // also set error state so banner shows
+      setError(err.message);
     } finally {
       setActionLoading(null);
     }
@@ -147,15 +202,15 @@ function ProductModeration() {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'approved':
-        return '✅';
+        return <MdCheck />;
       case 'pending':
-        return '⏳';
+        return <MdHourglassEmpty />;
       case 'rejected':
-        return '❌';
+        return <MdClose />;
       case 'flagged':
-        return '🚩';
+        return <MdFlag />;
       default:
-        return '📦';
+        return <MdInventory2 />;
     }
   };
 
@@ -211,42 +266,48 @@ function ProductModeration() {
           <p>Review and manage product submissions</p>
         </div>
         <button onClick={fetchProducts} className="refresh-button">
-          🔄 Refresh
+          <MdRefresh className="refresh-icon" /> Refresh
         </button>
       </div>
 
       {error && (
         <div className="error-banner">
-          <span className="error-icon">⚠️</span>
+          <MdWarning className="error-icon" />
           {error}
+        </div>
+      )}
+      {successMessage && (
+        <div className="success-banner">
+          <MdCheck className="success-icon" />
+          {successMessage}
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="stats-grid">
         <div className="stat-card total">
-          <div className="stat-icon">📦</div>
+          <div className="stat-icon"><MdInventory2 /></div>
           <div className="stat-content">
             <h3>{products.length}</h3>
             <p>Total Products</p>
           </div>
         </div>
         <div className="stat-card pending">
-          <div className="stat-icon">⏳</div>
+          <div className="stat-icon"><MdHourglassEmpty /></div>
           <div className="stat-content">
             <h3>{getFilterCount('pending')}</h3>
             <p>Pending Review</p>
           </div>
         </div>
         <div className="stat-card approved">
-          <div className="stat-icon">✅</div>
+          <div className="stat-icon"><MdCheck /></div>
           <div className="stat-content">
             <h3>{getFilterCount('approved')}</h3>
             <p>Approved</p>
           </div>
         </div>
         <div className="stat-card rejected">
-          <div className="stat-icon">❌</div>
+          <div className="stat-icon"><MdClose /></div>
           <div className="stat-content">
             <h3>{getFilterCount('rejected')}</h3>
             <p>Rejected</p>
@@ -257,7 +318,7 @@ function ProductModeration() {
       {/* Search and Filter Section */}
       <div className="controls-section">
         <div className="search-box">
-          <span className="search-icon">🔍</span>
+          <MdSearch className="search-icon" />
           <input
             type="text"
             placeholder="Search products, suppliers, categories..."
@@ -270,7 +331,7 @@ function ProductModeration() {
               onClick={() => setSearchTerm('')}
               className="clear-search"
             >
-              ✕
+              <MdClear />
             </button>
           )}
         </div>
@@ -304,7 +365,7 @@ function ProductModeration() {
 
         {filteredProducts.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">📦</div>
+            <div className="empty-icon"><MdInventory2 /></div>
             <h3>No products found</h3>
             <p>
               {searchTerm 
@@ -366,7 +427,7 @@ function ProductModeration() {
                     <td>
                       <div className="supplier-info">
                         <span className="supplier-name">
-                          {product.supplier?.name || product.supplierName || 'N/A'}
+                          {product.supplier?.companyName || product.supplierName || 'N/A'}
                         </span>
                       </div>
                     </td>
@@ -381,7 +442,7 @@ function ProductModeration() {
                           {getStatusIcon(product.status)}
                         </span>
                         {product.status}
-                        {product.flagged && <span className="flag-indicator"> 🚩</span>}
+                        {product.flagged && <span className="flag-indicator"><MdFlag /></span>}
                       </span>
                     </td>
                     <td>
@@ -391,7 +452,7 @@ function ProductModeration() {
                     </td>
                     <td>
                       <span className={`stock-indicator ${(product.stock || 0) > 0 ? 'in-stock' : 'out-of-stock'}`}>
-                        {product.stock || 0} units
+                        {product.stock || 0} 
                       </span>
                     </td>
                     <td>
@@ -401,21 +462,43 @@ function ProductModeration() {
                           className="btn-view"
                           title="View details"
                         >
-                          👁️ View
+                          <MdVisibility /> View
                         </button>
+
+                        <button
+                          className="menu-toggle"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenActionsFor(openActionsFor === product._id ? null : product._id);
+                          }}
+                          title="More actions"
+                        >
+                          <MdMoreVert />
+                        </button>
+
+                        {openActionsFor === product._id && (
+                          <div className="action-menu" onClick={(e) => e.stopPropagation()}>
+
+                            {product.status === 'pending' && (
+                              <>
+                                <button className="menu-item" onClick={() => { handleApproveProduct(product._id); setOpenActionsFor(null); }}>{actionLoading === product._id ? '...' : 'Approve'}</button>
+                                <button className="menu-item" onClick={() => { setRejectingProductId(product._id); setOpenActionsFor(null); }}>Reject</button>
+                              </>
+                            )}
+
+                            {product.flagged ? (
+                              <button className="menu-item" onClick={() => { handleFlagProduct(product._id); setOpenActionsFor(null); }}>{actionLoading === product._id ? '...' : 'Unflag'}</button>
+                            ) : (
+                              product.status !== 'rejected' && (
+                                <button className="menu-item" onClick={() => { handleFlagProduct(product._id); setOpenActionsFor(null); }}>{actionLoading === product._id ? '...' : 'Flag'}</button>
+                              )
+                            )}
+                          </div>
+                        )}
 
                         {product.status === 'pending' && (
                           <div className="moderation-actions">
-                            <button
-                              onClick={() => handleApproveProduct(product._id)}
-                              disabled={actionLoading === product._id}
-                              className="btn-approve"
-                              title="Approve product"
-                            >
-                              {actionLoading === product._id ? '⏳' : '✅'} Approve
-                            </button>
-
-                            {rejectingProductId === product._id ? (
+                            {rejectingProductId === product._id && (
                               <div className="reject-form">
                                 <textarea
                                   placeholder="Reason for rejection..."
@@ -433,7 +516,7 @@ function ProductModeration() {
                                     disabled={actionLoading === product._id || !rejectionReason.trim()}
                                     className="btn-reject-confirm"
                                   >
-                                    {actionLoading === product._id ? '⏳' : '❌'} Confirm
+                                    {actionLoading === product._id ? '...' : 'Confirm'}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -446,27 +529,8 @@ function ProductModeration() {
                                   </button>
                                 </div>
                               </div>
-                            ) : (
-                              <button
-                                onClick={() => setRejectingProductId(product._id)}
-                                className="btn-reject"
-                                title="Reject product"
-                              >
-                                ❌ Reject
-                              </button>
                             )}
                           </div>
-                        )}
-
-                        {!product.flagged && product.status !== 'rejected' && (
-                          <button
-                            onClick={() => handleFlagProduct(product._id)}
-                            disabled={actionLoading === product._id}
-                            className="btn-flag"
-                            title="Flag product for review"
-                          >
-                            {actionLoading === product._id ? '⏳' : '🚩'} Flag
-                          </button>
                         )}
                       </div>
                     </td>

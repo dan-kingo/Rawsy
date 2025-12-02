@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './ProductDetailsModal.css';
+import { MdApartment, MdAttachMoney, MdLocalOffer, MdSwapHoriz, MdInventory2, MdPayment, MdClose, MdVisibility } from 'react-icons/md';
 
 function ProductDetailsModal({ product, onClose }) {
   const images = product.images || [];
@@ -28,7 +29,7 @@ function ProductDetailsModal({ product, onClose }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="product-icon">
-            {product.category ? product.category.charAt(0).toUpperCase() : 'P'}
+            {product.name ? product.name.charAt(0).toUpperCase() : 'P'}
           </div>
           <div className="header-content">
             <h2>{product.name}</h2>
@@ -37,15 +38,15 @@ function ProductDetailsModal({ product, onClose }) {
           <span className={`status-badge ${getStatusClass(product.status)}`}>
             {product.status}
           </span>
-          <button className="modal-close" onClick={onClose}>
-            &times;
+          <button className="modal-close" onClick={onClose} aria-label="Close modal">
+            <MdClose />
           </button>
         </div>
 
         <div className="modal-body">
           <div className="details-grid">
             <div className="detail-card">
-              <div className="detail-icon">🏭</div>
+              <div className="detail-icon"><MdApartment className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Supplier</label>
                 <p>{product.supplier?.name || product.supplierName || 'N/A'}</p>
@@ -53,7 +54,7 @@ function ProductDetailsModal({ product, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">💰</div>
+              <div className="detail-icon"><MdAttachMoney className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Price</label>
                 <p className="price-highlight">${(product.price || 0).toFixed(2)}</p>
@@ -61,7 +62,7 @@ function ProductDetailsModal({ product, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">🎯</div>
+              <div className="detail-icon"><MdLocalOffer className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Discount</label>
                 <p className={product.discount?.active ? 'discount-highlight' : ''}>
@@ -71,7 +72,7 @@ function ProductDetailsModal({ product, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">🤝</div>
+              <div className="detail-icon"><MdSwapHoriz className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Negotiable</label>
                 <p className={product.negotiable ? 'negotiable-yes' : 'negotiable-no'}>
@@ -81,7 +82,7 @@ function ProductDetailsModal({ product, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">📦</div>
+              <div className="detail-icon"><MdInventory2 className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Stock</label>
                 <p className="stock-highlight">{product.stock || 0} units</p>
@@ -89,10 +90,10 @@ function ProductDetailsModal({ product, onClose }) {
             </div>
 
             <div className="detail-card">
-              <div className="detail-icon">💳</div>
+              <div className="detail-icon"><MdPayment className="detail-svg" /></div>
               <div className="detail-content">
                 <label>Payment Methods</label>
-                <p>{product.paymentMethods?.length > 0 ? product.paymentMethods.join(', ') : 'N/A'}</p>
+                <p>{product.paymentMethods?.length > 0 ? product.paymentMethods.join(', ') : 'Cash on Delivery'}</p>
               </div>
             </div>
           </div>
@@ -115,7 +116,7 @@ function ProductDetailsModal({ product, onClose }) {
                       }}
                     />
                     <div className="image-overlay">
-                      <span className="view-full-text">View Full</span>
+                      <span className="view-full-text"><MdVisibility className="view-icon" /> View Full</span>
                     </div>
                     <div className="image-counter">{index + 1}</div>
                   </div>
@@ -191,8 +192,8 @@ function ProductDetailsModal({ product, onClose }) {
                 e.target.src = 'https://via.placeholder.com/600x600?text=Image+Error';
               }}
             />
-            <button className="image-modal-close" onClick={closeImageModal}>
-              &times;
+            <button className="image-modal-close" onClick={closeImageModal} aria-label="Close image">
+              <MdClose />
             </button>
           </div>
         </div>
