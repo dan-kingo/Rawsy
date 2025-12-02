@@ -1,5 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import './AdminSupportSystem.css';
+import {
+  MdWarning,
+  MdDescription,
+  MdCampaign,
+  MdApartment,
+  MdCheckCircle,
+  MdHourglassEmpty,
+  MdInventory2,
+  MdAttachMoney,
+  MdTrendingUp,
+  MdEdit,
+  MdAdd,
+  MdSave,
+  MdMenuBook,
+  MdVisibility,
+  MdVisibilityOff,
+  MdDelete,
+  MdGroup,
+  MdBusiness,
+  MdClose,
+  MdNotifications,
+  MdNote,
+  MdLightbulb,
+  MdChat,
+  MdSend
+} from 'react-icons/md';
 
 const AdminSupportSystem = () => {
   const [activeSection, setActiveSection] = useState('faqs');
@@ -194,10 +220,10 @@ const AdminSupportSystem = () => {
       {error && (
         <div className="error-message">
           <div className="error-content">
-            <span className="error-icon">⚠️</span>
+            <MdWarning className="error-icon" />
             <span className="error-text">{error}</span>
           </div>
-          <button onClick={() => setError('')} className="close-error">&times;</button>
+          <button onClick={() => setError('')} className="close-error" aria-label="Close error"><MdClose /></button>
         </div>
       )}
 
@@ -206,7 +232,7 @@ const AdminSupportSystem = () => {
           className={`nav-btn ${activeSection === 'faqs' ? 'active' : ''}`}
           onClick={() => setActiveSection('faqs')}
         >
-          <span className="nav-icon">📋</span>
+          <MdDescription className="nav-icon" />
           <span className="nav-text">Manage FAQs</span>
           {faqs.length > 0 && <span className="nav-badge">{faqs.length}</span>}
         </button>
@@ -214,7 +240,7 @@ const AdminSupportSystem = () => {
           className={`nav-btn ${activeSection === 'broadcast' ? 'active' : ''}`}
           onClick={() => setActiveSection('broadcast')}
         >
-          <span className="nav-icon">📢</span>
+          <MdCampaign className="nav-icon" />
           <span className="nav-text">Send Broadcast</span>
         </button>
       </div>
@@ -230,7 +256,7 @@ const AdminSupportSystem = () => {
               <div className="section-stats">
                 <div className="stat-card">
                   <span className="stat-number">{faqs.length}</span>
-                  <span className="stat-label">Total FAQs</span>
+                  <span className="stat-label">Total</span>
                 </div>
                 <div className="stat-card">
                   <span className="stat-number">{faqs.filter(f => f.visible).length}</span>
@@ -243,7 +269,7 @@ const AdminSupportSystem = () => {
             <div className="form-container">
               <form className="faq-form" onSubmit={editingFaq ? updateFAQ : createFAQ}>
                 <div className="form-header">
-                  <h3>{editingFaq ? '✏️ Edit FAQ' : '➕ Create New FAQ'}</h3>
+                  <h3>{editingFaq ? <><MdEdit /> Edit FAQ</> : <><MdAdd /> Create New FAQ</>}</h3>
                   {editingFaq && (
                     <button type="button" className="btn-cancel" onClick={cancelEdit}>
                       Cancel Edit
@@ -317,7 +343,7 @@ const AdminSupportSystem = () => {
                         {editingFaq ? 'Updating FAQ...' : 'Creating FAQ...'}
                       </>
                     ) : (
-                      editingFaq ? '💾 Update FAQ' : '✨ Create FAQ'
+                      editingFaq ? <><MdSave /> Update FAQ</> : <><MdAdd /> Create FAQ</>
                     )}
                   </button>
                 </div>
@@ -335,7 +361,7 @@ const AdminSupportSystem = () => {
               
               {faqs.length === 0 ? (
                 <div className="empty-state">
-                  <div className="empty-icon">📚</div>
+                  <div className="empty-icon"><MdMenuBook /></div>
                   <h4>No FAQs Created Yet</h4>
                   <p>Start by creating your first FAQ above to help users find answers to common questions.</p>
                 </div>
@@ -347,7 +373,7 @@ const AdminSupportSystem = () => {
                         <div className="faq-title">
                           <h4>{faq.question}</h4>
                           <span className={`visibility-badge ${faq.visible ? 'visible' : 'hidden'}`}>
-                            {faq.visible ? '👁️ Visible' : '👻 Hidden'}
+                            {faq.visible ? <><MdVisibility /> Visible</> : <><MdVisibilityOff /> Hidden</>}
                           </span>
                         </div>
                       </div>
@@ -365,7 +391,7 @@ const AdminSupportSystem = () => {
                           onClick={() => startEditFAQ(faq)}
                           title="Edit FAQ"
                         >
-                          <span className="btn-icon">✏️</span>
+                          <MdEdit className="btn-icon" />
                           Edit
                         </button>
                         <button 
@@ -373,7 +399,7 @@ const AdminSupportSystem = () => {
                           onClick={() => deleteFAQ(faq._id)}
                           title="Delete FAQ"
                         >
-                          <span className="btn-icon">🗑️</span>
+                          <MdDelete className="btn-icon" />
                           Delete
                         </button>
                       </div>
@@ -406,9 +432,9 @@ const AdminSupportSystem = () => {
                         required
                         className="form-select"
                       >
-                        <option value="all">👥 All Users</option>
-                        <option value="manufacturer">🏭 Manufacturers Only</option>
-                        <option value="supplier">🏢 Suppliers Only</option>
+                        <option value="all"><MdGroup /> All Users</option>
+                        <option value="manufacturer"><MdApartment /> Manufacturers Only</option>
+                        <option value="supplier"><MdBusiness /> Suppliers Only</option>
                       </select>
                     </div>
                   </div>
@@ -451,7 +477,7 @@ const AdminSupportSystem = () => {
                     </>
                   ) : (
                     <>
-                      <span className="btn-icon">📢</span>
+                      <MdCampaign className="btn-icon" />
                       Send Broadcast Notification
                     </>
                   )}
@@ -460,24 +486,24 @@ const AdminSupportSystem = () => {
 
               <div className="broadcast-info">
                 <div className="info-header">
-                  <span className="info-icon">💡</span>
+                  <MdLightbulb className="info-icon" />
                   <h4>Broadcast Guidelines</h4>
                 </div>
                 <div className="info-content">
                   <div className="info-item">
-                    <span className="item-icon">🔔</span>
+                    <MdNotifications className="item-icon" />
                     <span>Notifications will be sent as push notifications to users' devices</span>
                   </div>
                   <div className="info-item">
-                    <span className="item-icon">📝</span>
+                    <MdNote className="item-icon" />
                     <span>Messages will also be saved in users' notification history</span>
                   </div>
                   <div className="info-item">
-                    <span className="item-icon">⚠️</span>
+                    <MdWarning className="item-icon" />
                     <span>Choose target audience carefully - broadcast cannot be undone</span>
                   </div>
                   <div className="info-item">
-                    <span className="item-icon">💬</span>
+                    <MdChat className="item-icon" />
                     <span>Keep messages clear, concise, and relevant to the target audience</span>
                   </div>
                 </div>

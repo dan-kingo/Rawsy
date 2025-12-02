@@ -357,7 +357,7 @@ body {
 .app-header {
   background: #293344;
   padding: 22px 32px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -371,9 +371,9 @@ body {
 .header-left h1 {
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a; /* subtler, accessible heading color */
   margin-bottom: 4px;
   letter-spacing: -0.3px;
+  color: #ffffff;
 }
 
 .header-left {
@@ -390,7 +390,7 @@ body {
 }
 
 .page-description {
-  color: #475569;
+  color: #94a3b8;
   font-size: 13px;
   margin: 0;
   font-weight: 500;
@@ -571,8 +571,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
+  background: transparent;
   z-index: -1;
 }
 

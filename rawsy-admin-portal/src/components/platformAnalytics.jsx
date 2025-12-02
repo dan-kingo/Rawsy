@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./platformAnalytics.css";
+import { MdRefresh, MdWarning, MdInsertChart, MdApartment, MdCheckCircle, MdHourglassEmpty, MdInventory2, MdAttachMoney, MdTrendingUp } from 'react-icons/md';
 import {
   BarChart,
   Bar,
@@ -102,7 +103,7 @@ function PlatformAnalytics() {
             <option value="1year">Last Year</option>
           </select>
           <button onClick={fetchAnalytics} className="refresh-button">
-            <span className="refresh-icon">🔄</span>
+            <MdRefresh className="refresh-icon" />
             Refresh Data
           </button>
         </div>
@@ -110,7 +111,7 @@ function PlatformAnalytics() {
 
       {error && (
         <div className="error-banner">
-          <span className="error-icon">⚠️</span>
+          <MdWarning className="error-icon" />
           {error}
         </div>
       )}
@@ -118,7 +119,7 @@ function PlatformAnalytics() {
       {!stats ? (
         <div className="no-data">
           <div className="no-data-content">
-            <span className="no-data-icon">📊</span>
+            <MdInsertChart className="no-data-icon" />
             <h3>No Analytics Data</h3>
             <p>Unable to load analytics data at this time</p>
             <button onClick={fetchAnalytics} className="retry-button">
@@ -131,7 +132,7 @@ function PlatformAnalytics() {
           {/* Stats Summary */}
           <div className="analytics-stats-grid">
             <div className="analytics-card">
-              <div className="card-icon total">🏭</div>
+              <div className="card-icon total"><MdApartment color="#fff" /></div>
               <div className="card-content">
                 <h4>Total Manufacturers</h4>
                 <p>{stats.totalManufacturers || 0}</p>
@@ -140,7 +141,7 @@ function PlatformAnalytics() {
             </div>
 
             <div className="analytics-card">
-              <div className="card-icon active">✅</div>
+              <div className="card-icon active"><MdCheckCircle color="#fff"  /></div>
               <div className="card-content">
                 <h4>Active Suppliers</h4>
                 <p>{stats.activeSuppliers || 0}</p>
@@ -149,7 +150,7 @@ function PlatformAnalytics() {
             </div>
 
             <div className="analytics-card">
-              <div className="card-icon pending">⏳</div>
+              <div className="card-icon pending"><MdHourglassEmpty color="#fff" /></div>
               <div className="card-content">
                 <h4>Pending Suppliers</h4>
                 <p>{stats.pendingSuppliers || 0}</p>
@@ -158,7 +159,7 @@ function PlatformAnalytics() {
             </div>
 
             <div className="analytics-card">
-              <div className="card-icon orders">📦</div>
+              <div className="card-icon orders"><MdInventory2 color="#fff"  /></div>
               <div className="card-content">
                 <h4>Total Orders</h4>
                 <p>{stats.totalOrders || 0}</p>
@@ -167,7 +168,7 @@ function PlatformAnalytics() {
             </div>
 
             <div className="analytics-card">
-              <div className="card-icon revenue">💰</div>
+              <div className="card-icon revenue"><MdAttachMoney color="#fff" /></div>
               <div className="card-content">
                 <h4>Total Revenue</h4>
                 <p>ETB {stats.revenue ? stats.revenue.toLocaleString() : 0}</p>
@@ -176,7 +177,7 @@ function PlatformAnalytics() {
             </div>
 
             <div className="analytics-card">
-              <div className="card-icon growth">📈</div>
+              <div className="card-icon growth"><MdTrendingUp color="#fff" /></div>
               <div className="card-content">
                 <h4>Platform Growth</h4>
                 <p>+15%</p>
