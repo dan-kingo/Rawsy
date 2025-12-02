@@ -2,6 +2,9 @@ import { firebaseAdmin } from "../config/firebase.config";
 import Notification from "../modules/notifications/notification.model";
 import User from "../modules/auth/auth.model";
 import { t } from "../utils/i18n";
+import Expo from 'expo-server-sdk';
+
+const expo = new Expo();
 
 /**
  * 🛎️ Send Push Notification
@@ -15,11 +18,47 @@ export const sendPushNotification = async (
   try {
     if (!deviceTokens?.length) return;
 
-    await firebaseAdmin.messaging().sendEachForMulticast({
-      notification: { title, body },
-      data,
-      tokens: deviceTokens,
-    });
+    // Separate Expo tokens from FCM tokens
+    const expoTokens: string[] = [];
+    const fcmTokens: string[] = [];
+
+    for (const token of deviceTokens) {
+      if (typeof token === 'string' && token.startsWith('ExponentPushToken')) {
+        expoTokens.push(token);
+      } else {
+        fcmTokens.push(token);
+      }
+    }
+
+    // Send via Expo for Expo tokens
+    if (expoTokens.length) {
+      const messages = expoTokens.map((to) => ({
+        to,
+        sound: 'default',
+        title,
+        body,
+        data: JSON.stringify(data),
+      }));
+
+      const chunks = expo.chunkPushNotifications(messages as any[]);
+      for (const chunk of chunks) {
+        try {
+          const ticketChunk = await expo.sendPushNotificationsAsync(chunk as any[]);
+          console.log('Expo push ticket chunk:', ticketChunk);
+        } catch (expoErr) {
+          console.error('Expo push error:', expoErr);
+        }
+      }
+    }
+
+    // Send via FCM for firebase tokens
+    if (fcmTokens.length) {
+      await firebaseAdmin.messaging().sendEachForMulticast({
+        notification: { title, body },
+        data,
+        tokens: fcmTokens,
+      });
+    }
   } catch (err) {
     console.error("🔥 Push Notification Error:", err);
   }

@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import api from './api';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -33,6 +34,15 @@ export const notificationService = {
       // Get Expo push token (no placeholder projectId). If you use EAS push you can pass projectId here.
       const token = await Notifications.getExpoPushTokenAsync();
       console.log('Expo push token:', token);
+
+      // Register device token with backend so server can send push notifications
+      try {
+        await api.post('/auth/save-device-token', { deviceToken: token.data });
+        console.log('Registered device token with backend');
+      } catch (err) {
+        const e: any = err;
+        console.warn('Failed to register device token with backend', e?.response?.data || e?.message || String(e));
+      }
 
       if (Platform.OS === 'android') {
         Notifications.setNotificationChannelAsync('default', {
